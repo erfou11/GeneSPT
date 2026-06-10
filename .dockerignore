@@ -1,0 +1,15 @@
+.git
+data/raw
+data/processed
+results
+runs
+wandb
+__pycache__
+*.h5ad
+*.npy
+*.npz
+*.pkl
+*.pt
+*.pth
+*.ckpt
+
