@@ -1,52 +1,43 @@
 # GeneSPT
 
-Reviewer-facing reference implementation for:
+Reviewer-facing code repository for:
 
 **GeneSPT: Gene-Conditioned Spatial Program Transfer for Unmeasured Gene Prediction in Spatial Transcriptomics**
 
-This repository is rebuilt around the method described in the manuscript. It is
-not a dump of historical exploratory branches.
+This repository is now anchored to the final local GeneSPT manuscript code. The
+method/reproduction scripts in `main/` and selected scripts in `scripts/` were
+copied from the final local workbench rather than rewritten as a separate
+simplified implementation.
+
+See `docs/SOURCE_ANCHOR.md` for the source-anchor policy and known dependency
+limits.
 
 ## What This Repository Contains
 
-- scRNA-derived gene descriptor construction;
-- GeneSPT-GC, the shared gene-conditioned decoder;
-- Predictable Spatial Program Transfer (PSP);
-- validation-selected fusion/readout;
-- centralized strict whole-gene evaluation for SPCC, RMSE, JS/JSD, and SSIM;
-- documentation for the manuscript data archive.
+- anchored final local code for strict whole-gene GC, PSP, evaluator, and
+  manuscript figure/source-table paths;
+- a thin public evaluator wrapper under `src/genespt/` that calls the anchored
+  final metric implementation;
+- dataset path templates under `configs/`;
+- documentation for the Zenodo data archive and manuscript reproduction paths.
 
 Large datasets, processed matrices, checkpoints, prediction matrices, and
 figure outputs are not tracked in GitHub. They are archived separately on
 Zenodo.
 
-## Method Summary
-
-GeneSPT predicts held-out genes under strict whole-gene holdout. For each fold,
-training genes are used for model fitting and spatial-program estimation,
-validation genes are used for PSP component screening and fusion/readout
-selection, and test genes are used only after all choices are fixed.
-
-The full model has two complementary branches:
-
-1. **GeneSPT-GC:** a gene-conditioned decoder that maps a spot representation
-   and target-gene descriptor to expression.
-2. **PSP:** a validation-screened transfer branch that extracts spatial
-   programs from training-gene ST maps and predicts target-gene coefficients
-   from scRNA-derived descriptors.
-
 ## Repository Layout
 
 ```text
-src/genespt/        Paper-aligned reference implementation
-scripts/            CLI entry points for GC, full GeneSPT, and evaluation
-configs/            Example configuration files
-docs/               Data, archive, baseline, and reproduction notes
+main/               Anchored final local method and reproduction scripts
+src/genespt/        Thin public evaluator/io wrappers only
+scripts/            Public evaluator plus anchored final figure/table scripts
+configs/            Dataset path templates
+docs/               Data, archive, baseline, source-anchor, and reproduction notes
 data/               Local data mount point; ignored by Git
 splits/             Local fixed split mount point; binary files ignored
 results/            Local outputs; predictions/checkpoints ignored
 figures/            Lightweight figure notes/source tables only
-tests/              Synthetic smoke test
+tests/              Synthetic evaluator smoke tests
 baseline_adapters/  Notes for external baseline adapters
 ```
 
@@ -65,9 +56,13 @@ docker build -t genespt:paper .
 docker run --gpus all --rm -it -v "$PWD:/workspace/GeneSPT" genespt:paper bash
 ```
 
+The anchored final scripts use the original final-workbench convention
+`/workspace/GeneSPT` in several defaults. Running in the Docker command above
+keeps that convention intact.
+
 ## Smoke Test
 
-The smoke test uses synthetic matrices only:
+The smoke test uses synthetic matrices and checks the anchored evaluator path:
 
 ```bash
 python tests/smoke_test.py
@@ -75,14 +70,14 @@ python tests/smoke_test.py
 
 ## Data Layout
 
-Place archived inputs locally as:
+For the public evaluator wrapper, place archived inputs locally as:
 
 ```text
 data/processed/<dataset_id>/
   st_matrix.npy          # spots x genes
-  scrna_matrix.npy       # cells x genes
+  scrna_matrix.npy       # cells x genes, if needed by the selected script
+  coordinates.npy
   gene_names.txt
-  spot_ids.txt
 
 splits/<dataset_id>/
   fold0_train_gene_idx.npy
@@ -90,32 +85,83 @@ splits/<dataset_id>/
   fold0_test_gene_idx.npy
 ```
 
-The manuscript datasets are:
+The anchored final scripts in `main/` may instead expect the final-workbench
+text layout under `/workspace/GeneSPT/data/<dataset_id>/`:
 
-- Primary: Vis9A, HBC, Cell2location mouse brain.
-- Cross-platform: seqFISH+ cortex/SVZ, MHPR/MERFISH, MVC/STARmap.
-
-## Run GeneSPT-GC
-
-```bash
-python scripts/run_genespt_gc.py --config configs/genespt_gc.example.yaml
+```text
+Spatial_count.txt
+scRNA_count.txt
+Locations.txt
 ```
 
-## Run Full GeneSPT
+## Manuscript Datasets
+
+Primary datasets:
+
+- Vis9A
+- HBC
+- Cell2location mouse brain
+
+Cross-platform datasets:
+
+- seqFISH+ cortex/SVZ
+- MHPR/MERFISH
+- MVC/STARmap
+
+Dataset-specific path templates are available under `configs/`.
+
+## Anchored Method Commands
+
+GeneSPT-GC validation path from the final local code:
 
 ```bash
-python scripts/run_full_genespt.py --config configs/full_genespt.example.yaml
+python main/run_gene_conditioned_decoder_folds012_validation.py --folds 0,1,2
 ```
+
+PSP validation path from the final local code:
+
+```bash
+python main/run_predictable_spatial_program_folds012.py --folds 0,1,2
+```
+
+These scripts preserve final local defaults. Use explicit `--counts-path`,
+`--scrna-counts-path`, `--locations-path`, `--mask-dir`, and `--out-dir`
+arguments if your extracted Zenodo files are not mounted at `/workspace/GeneSPT`.
 
 ## Centralized Evaluation
+
+`scripts/evaluate_predictions.py` is a lightweight public entry point. The
+metric logic comes from:
+
+```text
+main/run_strict_gene_conditioned_decoder_gate.py::gene_metrics
+```
+
+SPCC is Spearman correlation across spatial locations. SSIM is not multiplied
+by 10.
 
 ```bash
 python scripts/evaluate_predictions.py \
   --true data/processed/Vis9A_D7_spaim_effective4470/st_matrix.npy \
-  --pred results/predictions/Vis9A_D7_spaim_effective4470/GeneSPT/fold0_pred.npy \
+  --pred results/predictions/Vis9A_D7_spaim_effective4470/GeneSPT/fold0/prediction_test.npy \
   --test-indices splits/Vis9A_D7_spaim_effective4470/fold0_test_gene_idx.npy \
   --out results/evaluation/Vis9A_fold0_GeneSPT_summary.csv
 ```
+
+## Manuscript Reproduction
+
+Start with:
+
+```text
+docs/REPRODUCE_MANUSCRIPT.md
+docs/SOURCE_ANCHOR.md
+docs/DATA.md
+```
+
+Some final benchmark/table scripts are preserved as source-anchored artifacts
+but still require a missing local dependency, `run_final_dataset_audit.py`, or
+the equivalent dataset manifest from the archived package. This is documented
+in `docs/SOURCE_ANCHOR.md`; no replacement dependency has been invented.
 
 ## Data Availability
 

@@ -5,7 +5,7 @@ The manuscript compares GeneSPT with the following external methods:
 - SpaGE
 - Tangram
 - stPlus
-- TransPA
+- TransImp, implemented with the tranSpa/transpa package.
 - SpaIM
 
 This repository does not vendor full third-party baseline repositories. Use the
@@ -14,4 +14,3 @@ checksums in the external data archive.
 
 The same strict whole-gene split and centralized evaluator should be used for
 all methods.
-
