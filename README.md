@@ -22,8 +22,9 @@ limits.
 - documentation for the Zenodo data archive and manuscript reproduction paths.
 
 Large datasets, processed matrices, checkpoints, prediction matrices, and
-figure outputs are not tracked in GitHub. They are archived separately on
-Zenodo.
+figure outputs are not tracked in GitHub. Processed data and source tables are
+archived on Zenodo, and final prediction matrices are provided in a separate
+Zenodo addendum.
 
 ## Repository Layout
 
@@ -98,9 +99,40 @@ Expected report:
 results/reproduction/main_performance_source_check/README.md
 ```
 
-This is a source-value verification path. It does not retrain models and does
-not recompute all methods from final prediction matrices, because those
-prediction matrices are not included in the current Zenodo data package.
+This is a source-value verification path. It does not retrain models. To
+recompute metrics from saved prediction matrices, use the prediction-matrix
+addendum command below.
+
+## Prediction-Matrix Addendum Verification
+
+After extracting `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`,
+mount the extracted folder as `/addendum` and run:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_prediction_addendum.py --addendum-root /addendum
+```
+
+For a quick check on one dataset-method pair:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_prediction_addendum.py \
+    --addendum-root /addendum \
+    --datasets MHPR_current_panel \
+    --methods GeneSPT
+```
+
+This writes fold-level and dataset-method aggregate metrics under
+`results/reproduction/prediction_matrix_addendum_check/`.
 
 ## Data Layout
 
@@ -185,9 +217,9 @@ python scripts/evaluate_predictions.py \
   --out results/evaluation/Vis9A_fold0_GeneSPT_summary.csv
 ```
 
-The evaluator command requires a saved prediction matrix. The current Zenodo
-archive includes processed data, frozen splits, provenance, and manuscript
-source values, but it does not include all final prediction matrices.
+The evaluator command requires a saved prediction matrix. Use the Zenodo
+prediction-matrix addendum for the archived final benchmark matrices and
+evaluator-ready `log1p(CPM)` ground-truth arrays.
 
 ## Manuscript Reproduction
 
@@ -198,6 +230,7 @@ docs/REPRODUCE_MANUSCRIPT.md
 docs/SOURCE_ANCHOR.md
 docs/DATA.md
 docs/REPRODUCTION_STATUS.md
+docs/TERMINOLOGY.md
 ```
 
 Some final benchmark/table scripts are preserved as source-anchored artifacts
@@ -213,6 +246,12 @@ The reviewer-facing data package is available on Zenodo:
 - Public file: `GeneSPT_manuscript_data_20260610.zip`
 - Zenodo MD5: `872c96ff8d5bd6ac565b1843f46145c8`
 - SHA256: `E932BD33D04CE14D2AF4CEB33F7F0376B1867EE5CFA2F177E17D2C702993E701`
+
+Prediction-matrix addendum prepared for upload:
+
+- File: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
+- SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
+- DOI/record: pending Zenodo upload; replace this line after publication.
 
 ## Citation
 

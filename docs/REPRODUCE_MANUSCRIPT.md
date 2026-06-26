@@ -16,6 +16,12 @@ Data archive:
 - Internal manifest: `FILE_MANIFEST_SHA256.csv`
 - Dataset manifest: `DATASET_MANIFEST.csv`
 
+Prediction-matrix addendum prepared for upload:
+
+- Archive: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
+- SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
+- DOI/record: pending Zenodo upload; replace after publication.
+
 See `docs/SOURCE_ANCHOR.md` before treating a script as public-runnable. It
 records which files are byte-for-byte copies from the final local source tree
 and which dependency is still missing.
@@ -50,8 +56,52 @@ Boundary:
 - This is a source-value verification path.
 - It reports the main SPCC, SSIM, RMSE, and JS/JSD values for primary GeneSPT.
 - It does not retrain models.
-- It does not recompute all benchmark rows from final prediction matrices,
-  because those matrices are not included in the current Zenodo package.
+- It is complemented by the prediction-matrix addendum check below, which
+  recomputes metrics from archived saved predictions.
+
+## Prediction-Matrix Addendum Check
+
+After extracting `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`,
+run:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_prediction_addendum.py --addendum-root /addendum
+```
+
+The script reads:
+
+```text
+manifests/PREDICTION_MATRIX_MANIFEST.csv
+ground_truth/<dataset_id>/st_log1p_cpm.npy
+prediction_matrices/<dataset_id>/<method>/fold<k>/prediction.npz
+prediction_matrices/<dataset_id>/<method>/fold<k>/test_gene_idx.npy
+```
+
+It writes:
+
+```text
+results/reproduction/prediction_matrix_addendum_check/fold_metrics.csv
+results/reproduction/prediction_matrix_addendum_check/aggregate_metrics.csv
+```
+
+Quick check:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_prediction_addendum.py \
+    --addendum-root /addendum \
+    --datasets MHPR_current_panel \
+    --methods GeneSPT
+```
 
 ## Expected Local Layout
 
@@ -120,6 +170,17 @@ python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 
 This validates the archived primary benchmark source values and the Figure 2
 source-generation path.
+
+Prediction-matrix recomputation check:
+
+```bash
+python scripts/verify_prediction_addendum.py --addendum-root /addendum
+```
+
+This recomputes fold-level and aggregate metrics from the saved prediction
+matrices in the addendum. The original anchored Table 2 builder is still kept
+as a source-anchored artifact and still depends on the final-workbench audit
+module noted above.
 
 Available public metric recomputation for one saved method/fold:
 

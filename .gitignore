@@ -32,6 +32,7 @@ data/processed/
 splits/**/*.npy
 results/predictions/
 results/checkpoints/
+results/reproduction/
 results/**/*.npy
 results/**/*.npz
 results/**/*.pkl
@@ -40,4 +41,3 @@ figures/*.pdf
 figures/*.svg
 wandb/
 runs/
-

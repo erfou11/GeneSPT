@@ -1,7 +1,8 @@
 # Reproduction Status
 
 This document states what the public repository can and cannot reproduce from
-the current GitHub code and Zenodo data package.
+the current GitHub code, the main Zenodo data package, and the
+prediction-matrix addendum.
 
 ## Publicly Runnable Checks
 
@@ -44,6 +45,32 @@ Report path:
 results/reproduction/main_performance_source_check/README.md
 ```
 
+### Prediction-Matrix Addendum Check
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_prediction_addendum.py --addendum-root /addendum
+```
+
+This recomputes SPCC, RMSE, JS/JSD, and SSIM from archived saved prediction
+matrices and evaluator-ready ground truth arrays.
+
+Quick local validation performed on 2026-06-26:
+
+```text
+MHPR_current_panel / GeneSPT / 5 folds:
+SPCC_mean=0.247304, RMSE_mean=1.221133, JS/JSD_mean=0.296925, SSIM_mean=0.183256
+manifest deltas: SPCC=0.0, RMSE=-9.91e-11, JS/JSD=1.18e-11, SSIM=5.71e-11
+
+MHPR_current_panel / SpaGE / 5 folds:
+SPCC_mean=0.213669, RMSE_mean=1.234999, JS/JSD_mean=0.324172, SSIM_mean=0.177536
+manifest deltas: SPCC=1.11e-16, RMSE=-2.26e-10, JS/JSD=4.69e-11, SSIM=1.63e-10
+```
+
 ## Primary GeneSPT Values Checked
 
 The main source-value check reports the primary GeneSPT metrics:
@@ -77,17 +104,20 @@ The PSP script expects space-separated fold IDs.
 
 ## Current Full-Recompute Boundary
 
-The archived Zenodo package contains processed datasets, frozen splits,
-provenance files, source tables, and final figure source CSVs. It does not
-include the complete final prediction matrices for every method/fold.
+The main Zenodo package contains processed datasets, frozen splits, provenance
+files, source tables, and final figure source CSVs. The addendum contains final
+saved prediction matrices, evaluator-ready ground truth matrices, and public
+manifests.
 
 Therefore:
 
-- Table 2/Figure 2 source values can be verified.
-- A single prediction matrix can be evaluated with
-  `scripts/evaluate_predictions.py` if that matrix is supplied separately.
-- The full Table 2 benchmark cannot currently be recomputed end-to-end from
-  GitHub plus the current Zenodo package alone.
+- Table 2/Figure 2 source values can be verified from the main package.
+- Saved prediction-matrix metrics can be recomputed from the addendum with
+  `scripts/verify_prediction_addendum.py`.
+- One-off prediction matrices can be evaluated with
+  `scripts/evaluate_predictions.py`.
+- Full training-from-raw regeneration of every final prediction matrix remains
+  outside the lightweight public check path.
 
 The anchored full benchmark scripts are preserved:
 
@@ -96,15 +126,16 @@ main/recompute_final_benchmark_from_predictions.py
 main/build_final_four_metric_available_benchmark.py
 ```
 
-They still require final prediction matrices and the missing final-workbench
-dataset-audit dependency or an equivalent public manifest.
+They still require the missing final-workbench dataset-audit dependency or an
+equivalent public manifest if those exact anchored builders are used directly.
+The addendum provides a public manifest for the wrapper-based recomputation
+path.
 
 ## Required Upgrade For Full Recompute
 
-To upgrade from source-value verification to full benchmark recomputation, add
-one of the following:
+To upgrade beyond saved-prediction recomputation, add one of the following:
 
-1. a prediction-matrix archive with checksums and documented layout; or
-2. a complete training-to-prediction command chain that regenerates the final
+1. a complete training-to-prediction command chain that regenerates the final
    prediction matrices; plus
-3. a public replacement for the missing final dataset audit manifest.
+2. a public replacement for the missing final dataset audit manifest if the
+   exact anchored final benchmark builders remain the first-line path.

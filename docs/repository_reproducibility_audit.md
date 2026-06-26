@@ -19,26 +19,33 @@ verification path:
 python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 ```
 
-The repository is improved but is not a full prediction-matrix recomputation
-release because one anchored final script chain still depends on
-`run_final_dataset_audit.py`, and the current Zenodo package does not include
-the complete final prediction matrices.
+The repository is improved and now supports saved-prediction metric
+recomputation when used with the staged prediction-matrix addendum. It is still
+not a full training-from-raw reproduction release because one anchored final
+script chain still depends on `run_final_dataset_audit.py`.
+
+Post-addendum update, 2026-06-26: a separate prediction-matrix addendum has
+now been staged with final saved prediction matrices, evaluator-ready ground
+truth arrays, public manifests, and checksums. The repository now includes
+`scripts/verify_prediction_addendum.py` to recompute fold-level and aggregate
+metrics from that addendum. The remaining boundary is full training-from-raw
+regeneration and the exact anchored final benchmark builder dependency on the
+missing final-workbench audit module.
 
 ## Overall Score
 
-Score: 87 / 100
+Score: 91 / 100
 
-Decision: Review-ready for source-value verification; not yet full
-prediction-matrix recomputation ready.
+Decision: Review-ready with minor fixes for saved-prediction recomputation;
+not a full training-from-raw reproduction release.
 
 ## Mandatory Blockers
 
 - Full Table 2 builder is source-anchored but not yet fully runnable because
   `main/run_final_multidataset_fold0_gate.py` imports missing
   `run_final_dataset_audit.py`.
-- Full metric recomputation from saved predictions is not possible from the
-  current Zenodo package alone because the complete final prediction matrices
-  are not archived.
+- Full training-from-raw regeneration of every final prediction matrix is not
+  provided as a lightweight public path.
 
 ## What Changed
 
@@ -55,6 +62,10 @@ prediction-matrix recomputation ready.
 - Added `scripts/verify_main_performance_from_zenodo.py` for the first-line
   Table 2/Figure 2 source-value verification path.
 - Added `docs/REPRODUCTION_STATUS.md`.
+- Added `scripts/verify_prediction_addendum.py` for fold-level and aggregate
+  metric recomputation from the prediction-matrix addendum.
+- Added `docs/TERMINOLOGY.md` to separate public manuscript names from
+  preserved internal labels in anchored scripts.
 
 ## Detailed Score Table
 
@@ -62,12 +73,12 @@ prediction-matrix recomputation ready.
 |---|---:|---|
 | Documentation and readability | 13 / 15 | README, data docs, reproduction docs, and source-anchor docs are present. |
 | Environment and installation | 8 / 10 | Environment files exist; tests require dependencies not present in the bundled bare Python. |
-| Data layout, Zenodo, splits, provenance | 14 / 15 | DOI, archive layout, source-value check, and frozen split provenance documented. |
+| Data layout, Zenodo, splits, provenance | 15 / 15 | DOI, archive layout, source-value check, frozen split provenance, addendum layout, and checksum strategy documented. |
 | Model training code completeness | 13 / 15 | GC and PSP final local scripts copied into `main/`; some defaults retain final-workbench paths. |
 | Centralized evaluation and metrics | 15 / 15 | Public evaluator calls anchored final evaluator; SPCC uses Spearman. |
-| Manuscript reproduction scripts/docs | 13 / 15 | Main performance source-value verification added; full Table 2 recompute still needs prediction matrices and missing manifest. |
-| Tests and smoke examples | 8 / 10 | Evaluator smoke tests and main source-value check exist; full model smoke is intentionally not faked. |
-| Hygiene and terminology consistency | 3 / 5 | Public docs improved; anchored historical scripts still contain old internal labels where preserved exactly. |
+| Manuscript reproduction scripts/docs | 14 / 15 | Source-value verification and saved-prediction addendum recomputation are documented; full training-from-raw remains out of scope. |
+| Tests and smoke examples | 9 / 10 | Evaluator smoke tests, main source-value check, and addendum recomputation checks exist; full model smoke is intentionally not faked. |
+| Hygiene and terminology consistency | 4 / 5 | Public docs and terminology notes distinguish manuscript terms from preserved internal labels in anchored scripts. |
 
 ## Anchored Files Found
 
@@ -154,12 +165,25 @@ Main benchmark source-value verification:
 python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 ```
 
+Prediction-matrix addendum verification:
+
+```bash
+python scripts/verify_prediction_addendum.py --addendum-root /addendum
+```
+
+Latest Docker validation:
+
+```text
+MHPR_current_panel / GeneSPT / 5 folds -> aggregate metrics match manifest reference within floating-point tolerance.
+MHPR_current_panel / SpaGE / 5 folds -> aggregate metrics match manifest reference within floating-point tolerance.
+```
+
 ## Missing Reproduction Paths
 
-- Full Table 2 rebuild needs the missing `run_final_dataset_audit.py` or an
-  equivalent restored dataset manifest.
-- Full one-command recomputation from final prediction matrices is not yet
-  available from GitHub plus the current Zenodo package alone.
+- The exact anchored final Table 2 builder still needs the missing
+  `run_final_dataset_audit.py` or an equivalent restored dataset manifest.
+- Saved-prediction metric recomputation is now available through
+  `scripts/verify_prediction_addendum.py` plus the staged addendum package.
 
 ## Metric Findings
 
@@ -182,11 +206,12 @@ reintroduce Pearson-labeled SPCC.
 
 1. Recover or reconstruct from archived provenance the missing
    `run_final_dataset_audit.py` equivalent without inventing data.
-2. Add a checked Zenodo extraction/conversion script.
+2. Add final Zenodo DOI/record metadata for the prediction-matrix addendum
+   after upload.
 3. Optionally add CI or a smaller CPU-only smoke environment so reviewers do
    not need to build the CUDA image just to check the evaluator.
 4. Confirm final manuscript-facing terminology in public docs.
-5. Commit and push the anchored refactor.
+5. Commit and push the anchored refactor plus addendum-documentation update.
 
 ## Recommended Fixes After Release
 

@@ -1,12 +1,19 @@
 # Data Availability
 
 GitHub stores source code and lightweight metadata only. Large data are
-available from Zenodo:
+available from Zenodo. The first archive contains processed datasets, frozen
+splits, provenance, and source tables:
 
 - DOI: <https://doi.org/10.5281/zenodo.20630224>
 - Archive name: `GeneSPT_manuscript_data_20260610.zip`
 - Zenodo MD5: `872c96ff8d5bd6ac565b1843f46145c8`
 - SHA256: `E932BD33D04CE14D2AF4CEB33F7F0376B1867EE5CFA2F177E17D2C702993E701`
+
+Prediction-matrix addendum prepared for upload:
+
+- Archive name: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
+- SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
+- DOI/record: pending Zenodo upload; replace after publication.
 
 ## Expected Zenodo Internal Folders
 
@@ -47,9 +54,22 @@ can be run directly against the extracted Zenodo folder:
 python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 ```
 
+The prediction-matrix addendum uses these top-level entries:
+
+```text
+prediction_matrices/
+mechanism_ablation_prediction_matrices/
+ground_truth/
+manifests/
+ADDENDUM_VALIDATION_REPORT.md
+CHECKSUMS_SHA256.txt
+PACKAGE_BUILD_SUMMARY.json
+README.md
+```
+
 The public evaluator wrapper under `scripts/evaluate_predictions.py` requires a
-saved prediction matrix. The current Zenodo package does not include the full
-set of final prediction matrices.
+saved prediction matrix. The addendum provides final benchmark prediction
+matrices plus evaluator-ready ground-truth arrays.
 
 ## Manuscript Datasets
 
@@ -91,6 +111,25 @@ The current Zenodo package includes these source-data CSVs under
 - `supplementary_table_s2_full_benchmark_metrics_and_method_availability.csv`
 - `supplementary_table_s3_descriptor_psp_and_mechanism_controls.csv`
 
-TODO: if final prediction matrices are archived under a separate folder, add
-the exact internal path and checksum manifest here after that archive is
-finalized.
+## Prediction Matrix Addendum
+
+The addendum includes:
+
+- `prediction_matrices/<dataset_id>/<method>/fold<k>/prediction.npz`
+- `prediction_matrices/<dataset_id>/<method>/fold<k>/test_gene_idx.npy`
+- `prediction_matrices/<dataset_id>/<method>/fold<k>/metadata.json`
+- `ground_truth/<dataset_id>/st_log1p_cpm.npy`
+- `ground_truth/<dataset_id>/gene_names.txt`
+- `manifests/PREDICTION_MATRIX_MANIFEST.csv`
+- `manifests/MECHANISM_ABLATION_MATRIX_MANIFEST.csv`
+- `manifests/DATASET_AUDIT_MANIFEST.csv`
+- `manifests/GROUND_TRUTH_MATRIX_MANIFEST.csv`
+
+Use:
+
+```bash
+python scripts/verify_prediction_addendum.py --addendum-root /path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626
+```
+
+The script writes fold-level metrics and dataset-method aggregate metrics to
+`results/reproduction/prediction_matrix_addendum_check/`.
