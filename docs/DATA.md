@@ -39,9 +39,17 @@ results/predictions/<dataset_id>/<method>/fold<k>/
 results/evaluation/<dataset_id>/<method>/
 ```
 
-TODO: add a conversion/check script if the Zenodo `processed_datasets/` files
-are unpacked as text matrices rather than the `.npy` paths shown in the config
-templates.
+The current Zenodo package stores processed matrices as the final-workbench
+text files under `processed_datasets/`. The main benchmark source-value check
+can be run directly against the extracted Zenodo folder:
+
+```bash
+python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
+```
+
+The public evaluator wrapper under `scripts/evaluate_predictions.py` requires a
+saved prediction matrix. The current Zenodo package does not include the full
+set of final prediction matrices.
 
 ## Manuscript Datasets
 
@@ -84,4 +92,5 @@ The current Zenodo package includes these source-data CSVs under
 - `supplementary_table_s3_descriptor_psp_and_mechanism_controls.csv`
 
 TODO: if final prediction matrices are archived under a separate folder, add
-the exact internal path here after the Zenodo record is finalized.
+the exact internal path and checksum manifest here after that archive is
+finalized.

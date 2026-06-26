@@ -20,6 +20,39 @@ See `docs/SOURCE_ANCHOR.md` before treating a script as public-runnable. It
 records which files are byte-for-byte copies from the final local source tree
 and which dependency is still missing.
 
+## First-Line Main Performance Check
+
+The first reviewer-facing reproduction check is the main benchmark source-value
+verification, not the PSP ablation. After extracting the Zenodo archive, run:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_manuscript_data_20260610:/data" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
+```
+
+This command verifies the archived primary benchmark source values used for
+Table 2/Figure 2. It writes the legacy Figure 2 input expected by the anchored
+final script, reruns Figure 2 source generation, and checks that the generated
+source CSV exactly matches the Zenodo final Figure 2 source CSV.
+
+Expected report:
+
+```text
+results/reproduction/main_performance_source_check/README.md
+```
+
+Boundary:
+
+- This is a source-value verification path.
+- It reports the main SPCC, SSIM, RMSE, and JS/JSD values for primary GeneSPT.
+- It does not retrain models.
+- It does not recompute all benchmark rows from final prediction matrices,
+  because those matrices are not included in the current Zenodo package.
+
 ## Expected Local Layout
 
 The public evaluator expects:
@@ -79,6 +112,15 @@ Current status:
 - Therefore, do not claim the full Table 2 builder is one-command runnable
   until the missing dataset-audit dependency or equivalent manifest is restored.
 
+Current reviewer-facing check:
+
+```bash
+python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
+```
+
+This validates the archived primary benchmark source values and the Figure 2
+source-generation path.
+
 Available public metric recomputation for one saved method/fold:
 
 ```bash
@@ -129,7 +171,7 @@ Anchored method scripts:
 
 ```bash
 python main/run_gene_conditioned_decoder_folds012_validation.py --folds 0,1,2
-python main/run_predictable_spatial_program_folds012.py --folds 0,1,2
+python main/run_predictable_spatial_program_folds012.py --folds 0 1 2
 ```
 
 Anchored fold0 PSP script:

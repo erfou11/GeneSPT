@@ -44,6 +44,26 @@ scripts/generate_main_downstream_figure6_final.py
 scripts/generate_supplyment_tables.py
 ```
 
+## Public Verification Wrappers
+
+These files are reviewer-facing wrappers around archived source values or the
+anchored evaluator. They are not alternative implementations of the GeneSPT
+method:
+
+```text
+scripts/evaluate_predictions.py
+scripts/env_smoke_test.py
+scripts/verify_main_performance_from_zenodo.py
+tests/smoke_test.py
+tests/test_metrics.py
+src/genespt/
+```
+
+`scripts/verify_main_performance_from_zenodo.py` verifies the Table 2/Figure 2
+main performance source values from the Zenodo archive and reruns the anchored
+Figure 2 source-generation path. It does not retrain models and does not
+recompute all benchmark rows from unavailable prediction matrices.
+
 ## Known Unresolved Dependency
 
 `main/run_final_multidataset_fold0_gate.py` imports

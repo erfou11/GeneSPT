@@ -1,6 +1,6 @@
 # Repository Reproducibility Audit
 
-Date: 2026-06-23
+Date: 2026-06-26
 
 ## Executive Summary
 
@@ -12,25 +12,33 @@ metric wrapper calls the anchored final evaluator logic.
 This fixes the prior high-risk mismatch where GitHub computed Pearson
 correlation under the `SPCC` label.
 
-The repository is improved but is not fully public-release ready because one
-anchored final script chain still depends on `run_final_dataset_audit.py`, which
-was not present in the local final source tree at refactor time.
+The repository now includes a reviewer-facing main performance source-value
+verification path:
+
+```bash
+python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
+```
+
+The repository is improved but is not a full prediction-matrix recomputation
+release because one anchored final script chain still depends on
+`run_final_dataset_audit.py`, and the current Zenodo package does not include
+the complete final prediction matrices.
 
 ## Overall Score
 
-Score: 82 / 100
+Score: 87 / 100
 
-Decision: Review-ready with remaining blocker for full Table 2 one-command
-reproduction.
+Decision: Review-ready for source-value verification; not yet full
+prediction-matrix recomputation ready.
 
 ## Mandatory Blockers
 
 - Full Table 2 builder is source-anchored but not yet fully runnable because
   `main/run_final_multidataset_fold0_gate.py` imports missing
   `run_final_dataset_audit.py`.
-- The Zenodo package-to-final-workbench path conversion still needs a small
-  checked script if the archive layout differs from the `/workspace/GeneSPT`
-  defaults.
+- Full metric recomputation from saved predictions is not possible from the
+  current Zenodo package alone because the complete final prediction matrices
+  are not archived.
 
 ## What Changed
 
@@ -44,6 +52,9 @@ reproduction.
 - Added `docs/SOURCE_ANCHOR.md`.
 - Updated `README.md` and `docs/REPRODUCE_MANUSCRIPT.md` to point to anchored
   code paths.
+- Added `scripts/verify_main_performance_from_zenodo.py` for the first-line
+  Table 2/Figure 2 source-value verification path.
+- Added `docs/REPRODUCTION_STATUS.md`.
 
 ## Detailed Score Table
 
@@ -51,12 +62,12 @@ reproduction.
 |---|---:|---|
 | Documentation and readability | 13 / 15 | README, data docs, reproduction docs, and source-anchor docs are present. |
 | Environment and installation | 8 / 10 | Environment files exist; tests require dependencies not present in the bundled bare Python. |
-| Data layout, Zenodo, splits, provenance | 12 / 15 | DOI and archive layout documented; conversion/check helper still needed. |
+| Data layout, Zenodo, splits, provenance | 14 / 15 | DOI, archive layout, source-value check, and frozen split provenance documented. |
 | Model training code completeness | 13 / 15 | GC and PSP final local scripts copied into `main/`; some defaults retain final-workbench paths. |
 | Centralized evaluation and metrics | 15 / 15 | Public evaluator calls anchored final evaluator; SPCC uses Spearman. |
-| Manuscript reproduction scripts/docs | 12 / 15 | Figure and supplement scripts anchored; Table 2 full builder has missing dependency. |
-| Tests and smoke examples | 7 / 10 | Evaluator smoke tests exist; full model smoke is intentionally not faked. |
-| Hygiene and terminology consistency | 2 / 5 | Public docs improved; anchored historical scripts still contain old internal labels where preserved exactly. |
+| Manuscript reproduction scripts/docs | 13 / 15 | Main performance source-value verification added; full Table 2 recompute still needs prediction matrices and missing manifest. |
+| Tests and smoke examples | 8 / 10 | Evaluator smoke tests and main source-value check exist; full model smoke is intentionally not faked. |
+| Hygiene and terminology consistency | 3 / 5 | Public docs improved; anchored historical scripts still contain old internal labels where preserved exactly. |
 
 ## Anchored Files Found
 
@@ -134,15 +145,21 @@ python main/run_gene_conditioned_decoder_folds012_validation.py --folds 0,1,2
 Anchored PSP validation:
 
 ```bash
-python main/run_predictable_spatial_program_folds012.py --folds 0,1,2
+python main/run_predictable_spatial_program_folds012.py --folds 0 1 2
+```
+
+Main benchmark source-value verification:
+
+```bash
+python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 ```
 
 ## Missing Reproduction Paths
 
 - Full Table 2 rebuild needs the missing `run_final_dataset_audit.py` or an
   equivalent restored dataset manifest.
-- Full one-command conversion from Zenodo archive layout to the anchored
-  final-workbench path layout is not yet implemented.
+- Full one-command recomputation from final prediction matrices is not yet
+  available from GitHub plus the current Zenodo package alone.
 
 ## Metric Findings
 

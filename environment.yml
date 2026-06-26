@@ -16,8 +16,8 @@ dependencies:
   - tqdm
   - pyyaml
   - h5py
+  - pytest
   - pip
   - pip:
       - anndata==0.11.4
       - scanpy==1.11.5
-

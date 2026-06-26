@@ -68,6 +68,40 @@ The smoke test uses synthetic matrices and checks the anchored evaluator path:
 python tests/smoke_test.py
 ```
 
+## Main Performance Verification
+
+For reviewer-facing checks, start with the main benchmark source values, not the
+PSP ablation scripts. After extracting the Zenodo archive, mount it as `/data`
+inside Docker and run:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace/GeneSPT" \
+  -v "/path/to/GeneSPT_manuscript_data_20260610:/data" \
+  -w /workspace/GeneSPT \
+  genespt:paper \
+  python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
+```
+
+This command:
+
+- reads the Zenodo primary benchmark source table;
+- writes the legacy Figure 2 input expected by the anchored final script;
+- reruns `main/generate_figure2_primary_dotplot.py`;
+- verifies that the generated Figure 2 source CSV matches the archived final
+  Figure 2 source CSV;
+- reports the primary GeneSPT SPCC, SSIM, RMSE, and JS/JSD values.
+
+Expected report:
+
+```text
+results/reproduction/main_performance_source_check/README.md
+```
+
+This is a source-value verification path. It does not retrain models and does
+not recompute all methods from final prediction matrices, because those
+prediction matrices are not included in the current Zenodo data package.
+
 ## Data Layout
 
 For the public evaluator wrapper, place archived inputs locally as:
@@ -112,6 +146,9 @@ Dataset-specific path templates are available under `configs/`.
 
 ## Anchored Method Commands
 
+These are method and ablation validation paths. They are not the first-line
+main performance reproduction path.
+
 GeneSPT-GC validation path from the final local code:
 
 ```bash
@@ -121,7 +158,7 @@ python main/run_gene_conditioned_decoder_folds012_validation.py --folds 0,1,2
 PSP validation path from the final local code:
 
 ```bash
-python main/run_predictable_spatial_program_folds012.py --folds 0,1,2
+python main/run_predictable_spatial_program_folds012.py --folds 0 1 2
 ```
 
 These scripts preserve final local defaults. Use explicit `--counts-path`,
@@ -148,6 +185,10 @@ python scripts/evaluate_predictions.py \
   --out results/evaluation/Vis9A_fold0_GeneSPT_summary.csv
 ```
 
+The evaluator command requires a saved prediction matrix. The current Zenodo
+archive includes processed data, frozen splits, provenance, and manuscript
+source values, but it does not include all final prediction matrices.
+
 ## Manuscript Reproduction
 
 Start with:
@@ -156,6 +197,7 @@ Start with:
 docs/REPRODUCE_MANUSCRIPT.md
 docs/SOURCE_ANCHOR.md
 docs/DATA.md
+docs/REPRODUCTION_STATUS.md
 ```
 
 Some final benchmark/table scripts are preserved as source-anchored artifacts
