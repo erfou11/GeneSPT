@@ -1,8 +1,9 @@
 # Reproduction Status
 
 This document states what the public repository can and cannot reproduce from
-the current GitHub code, the main Zenodo data package, and the
-prediction-matrix addendum.
+the current GitHub code and the combined Zenodo data package, `GeneSPT.zip`.
+The combined package contains the original manuscript data archive and the
+prediction-matrix archive as two inner ZIP files.
 
 ## Publicly Runnable Checks
 
@@ -30,6 +31,8 @@ docker run --rm \
 ```
 
 This verifies the primary benchmark source values used for Table 2/Figure 2.
+Use the extracted inner `GeneSPT_manuscript_data_20260610.zip` folder as
+`/data`.
 It also reruns the anchored Figure 2 source-generation script and compares the
 generated source CSV to the Zenodo final Figure 2 source CSV.
 
@@ -58,6 +61,9 @@ docker run --rm \
 
 This recomputes SPCC, RMSE, JS/JSD, and SSIM from archived saved prediction
 matrices and evaluator-ready ground truth arrays.
+Use the extracted inner
+`GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip` folder as
+`/addendum`.
 
 Quick local validation performed on 2026-06-26:
 
@@ -104,10 +110,11 @@ The PSP script expects space-separated fold IDs.
 
 ## Current Full-Recompute Boundary
 
-The main Zenodo package contains processed datasets, frozen splits, provenance
-files, source tables, and final figure source CSVs. The addendum contains final
-saved prediction matrices, evaluator-ready ground truth matrices, and public
-manifests.
+The combined Zenodo package `GeneSPT.zip` contains two inner archives. The
+manuscript data inner archive contains processed datasets, frozen splits,
+provenance files, source tables, and final figure source CSVs. The prediction
+matrix inner archive contains final saved prediction matrices, evaluator-ready
+ground truth matrices, and public manifests.
 
 Therefore:
 
@@ -128,8 +135,8 @@ main/build_final_four_metric_available_benchmark.py
 
 They still require the missing final-workbench dataset-audit dependency or an
 equivalent public manifest if those exact anchored builders are used directly.
-The addendum provides a public manifest for the wrapper-based recomputation
-path.
+The prediction-matrix inner archive provides a public manifest for the
+wrapper-based recomputation path.
 
 ## Required Upgrade For Full Recompute
 

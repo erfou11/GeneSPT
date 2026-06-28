@@ -11,16 +11,21 @@ source data are archived on Zenodo rather than tracked in GitHub.
 
 Data archive:
 
-- DOI: <https://doi.org/10.5281/zenodo.20630224>
-- Archive: `GeneSPT_manuscript_data_20260610.zip`
-- Internal manifest: `FILE_MANIFEST_SHA256.csv`
-- Dataset manifest: `DATASET_MANIFEST.csv`
+- Zenodo DOI/record: pending final publication; replace after publication.
+- Combined archive: `GeneSPT.zip`
+- MD5: `bab51420a0a961dc6a9d85f1f980b393`
+- SHA256: `0ae1a6384aca693c173b61a315c6426174106a863d07ae5523b8cc2ac7fa0351`
 
-Prediction-matrix addendum prepared for upload:
+`GeneSPT.zip` contains two inner archives:
 
-- Archive: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
-- SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
-- DOI/record: pending Zenodo upload; replace after publication.
+- `GeneSPT_manuscript_data_20260610.zip`, with
+  `FILE_MANIFEST_SHA256.csv` and `DATASET_MANIFEST.csv`.
+- `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`, with saved
+  prediction matrices, evaluator-ready ground truth arrays, manifests, and
+  checksums.
+
+The original data-only Zenodo record is retained for provenance:
+<https://doi.org/10.5281/zenodo.20630224>.
 
 See `docs/SOURCE_ANCHOR.md` before treating a script as public-runnable. It
 records which files are byte-for-byte copies from the final local source tree
@@ -29,7 +34,8 @@ and which dependency is still missing.
 ## First-Line Main Performance Check
 
 The first reviewer-facing reproduction check is the main benchmark source-value
-verification, not the PSP ablation. After extracting the Zenodo archive, run:
+verification, not the PSP ablation. After extracting `GeneSPT.zip`, extract the
+inner archive `GeneSPT_manuscript_data_20260610.zip` and run:
 
 ```bash
 docker run --rm \
@@ -61,8 +67,8 @@ Boundary:
 
 ## Prediction-Matrix Addendum Check
 
-After extracting `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`,
-run:
+After extracting `GeneSPT.zip`, extract the inner archive
+`GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip` and run:
 
 ```bash
 docker run --rm \

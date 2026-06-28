@@ -22,9 +22,9 @@ limits.
 - documentation for the Zenodo data archive and manuscript reproduction paths.
 
 Large datasets, processed matrices, checkpoints, prediction matrices, and
-figure outputs are not tracked in GitHub. Processed data and source tables are
-archived on Zenodo, and final prediction matrices are provided in a separate
-Zenodo addendum.
+figure outputs are not tracked in GitHub. Processed data, source tables, and
+final prediction matrices are archived on Zenodo in a single combined package,
+`GeneSPT.zip`.
 
 ## Repository Layout
 
@@ -72,8 +72,9 @@ python tests/smoke_test.py
 ## Main Performance Verification
 
 For reviewer-facing checks, start with the main benchmark source values, not the
-PSP ablation scripts. After extracting the Zenodo archive, mount it as `/data`
-inside Docker and run:
+PSP ablation scripts. Download `GeneSPT.zip` from Zenodo, extract it, then
+extract the inner archive `GeneSPT_manuscript_data_20260610.zip`. Mount that
+extracted inner folder as `/data` inside Docker and run:
 
 ```bash
 docker run --rm \
@@ -100,13 +101,14 @@ results/reproduction/main_performance_source_check/README.md
 ```
 
 This is a source-value verification path. It does not retrain models. To
-recompute metrics from saved prediction matrices, use the prediction-matrix
-addendum command below.
+recompute metrics from saved prediction matrices, use the saved-prediction
+verification command below.
 
-## Prediction-Matrix Addendum Verification
+## Saved Prediction-Matrix Verification
 
-After extracting `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`,
-mount the extracted folder as `/addendum` and run:
+After extracting `GeneSPT.zip`, extract the inner archive
+`GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`. Mount that
+extracted inner folder as `/addendum` and run:
 
 ```bash
 docker run --rm \
@@ -217,9 +219,9 @@ python scripts/evaluate_predictions.py \
   --out results/evaluation/Vis9A_fold0_GeneSPT_summary.csv
 ```
 
-The evaluator command requires a saved prediction matrix. Use the Zenodo
-prediction-matrix addendum for the archived final benchmark matrices and
-evaluator-ready `log1p(CPM)` ground-truth arrays.
+The evaluator command requires a saved prediction matrix. Use the prediction
+matrix inner archive from `GeneSPT.zip` for the archived final benchmark
+matrices and evaluator-ready `log1p(CPM)` ground-truth arrays.
 
 ## Manuscript Reproduction
 
@@ -240,18 +242,26 @@ in `docs/SOURCE_ANCHOR.md`; no replacement dependency has been invented.
 
 ## Data Availability
 
-The reviewer-facing data package is available on Zenodo:
+The reviewer-facing data package is a single combined Zenodo upload:
+
+- File: `GeneSPT.zip`
+- Zenodo DOI/record: pending final publication; replace this line after
+  publication.
+- MD5: `bab51420a0a961dc6a9d85f1f980b393`
+- SHA256: `0ae1a6384aca693c173b61a315c6426174106a863d07ae5523b8cc2ac7fa0351`
+
+`GeneSPT.zip` contains:
+
+- `README_combined_upload.txt`
+- `GeneSPT_manuscript_data_20260610.zip`
+- `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
+
+The original data-only Zenodo record is retained for provenance:
 
 - DOI: <https://doi.org/10.5281/zenodo.20630224>
-- Public file: `GeneSPT_manuscript_data_20260610.zip`
+- File: `GeneSPT_manuscript_data_20260610.zip`
 - Zenodo MD5: `872c96ff8d5bd6ac565b1843f46145c8`
 - SHA256: `E932BD33D04CE14D2AF4CEB33F7F0376B1867EE5CFA2F177E17D2C702993E701`
-
-Prediction-matrix addendum prepared for upload:
-
-- File: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
-- SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
-- DOI/record: pending Zenodo upload; replace this line after publication.
 
 ## Citation
 

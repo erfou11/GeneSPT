@@ -24,13 +24,14 @@ recomputation when used with the staged prediction-matrix addendum. It is still
 not a full training-from-raw reproduction release because one anchored final
 script chain still depends on `run_final_dataset_audit.py`.
 
-Post-addendum update, 2026-06-26: a separate prediction-matrix addendum has
-now been staged with final saved prediction matrices, evaluator-ready ground
-truth arrays, public manifests, and checksums. The repository now includes
-`scripts/verify_prediction_addendum.py` to recompute fold-level and aggregate
-metrics from that addendum. The remaining boundary is full training-from-raw
-regeneration and the exact anchored final benchmark builder dependency on the
-missing final-workbench audit module.
+Post-Zenodo-package update, 2026-06-28: the reviewer-facing data upload is now
+documented as a single combined archive, `GeneSPT.zip`, containing the original
+manuscript data ZIP and the prediction-matrix ZIP as inner files. The repository
+includes `scripts/verify_prediction_addendum.py` to recompute fold-level and
+aggregate metrics from the extracted prediction-matrix inner archive. The
+remaining boundary is full training-from-raw regeneration and the exact
+anchored final benchmark builder dependency on the missing final-workbench
+audit module.
 
 ## Overall Score
 
@@ -206,8 +207,8 @@ reintroduce Pearson-labeled SPCC.
 
 1. Recover or reconstruct from archived provenance the missing
    `run_final_dataset_audit.py` equivalent without inventing data.
-2. Add final Zenodo DOI/record metadata for the prediction-matrix addendum
-   after upload.
+2. Add final Zenodo DOI/record metadata for the combined `GeneSPT.zip` package
+   after publication.
 3. Optionally add CI or a smaller CPU-only smoke environment so reviewers do
    not need to build the CUDA image just to check the evaluator.
 4. Confirm final manuscript-facing terminology in public docs.

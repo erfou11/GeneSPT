@@ -1,15 +1,17 @@
 cff-version: 1.2.0
-message: "If you use GeneSPT, please cite the associated manuscript when available, this repository, and the Zenodo data archive."
+message: "If you use GeneSPT, please cite the associated manuscript when available, this repository, and the final Zenodo data archive."
 title: "GeneSPT: Gene-Conditioned Spatial Program Transfer for Unmeasured Gene Prediction in Spatial Transcriptomics"
 authors:
   - family-names: "Le"
     given-names: "Zitao"
     orcid: "https://orcid.org/0009-0009-6465-439X"
-version: "0.1.0"
-date-released: "2026-06-10"
+version: "1.0.0"
+date-released: "2026-06-28"
 repository-code: "https://github.com/erfou11/GeneSPT"
 license: "Apache-2.0"
 identifiers:
+  # Data-only provenance DOI. Replace with the final combined GeneSPT.zip
+  # Zenodo DOI after the combined record is published.
   - type: doi
     value: "10.5281/zenodo.20630224"
 preferred-citation:
@@ -20,4 +22,3 @@ preferred-citation:
       given-names: "Zitao"
       orcid: "https://orcid.org/0009-0009-6465-439X"
   year: 2026
-

@@ -1,23 +1,36 @@
 # Data Availability
 
 GitHub stores source code and lightweight metadata only. Large data are
-available from Zenodo. The first archive contains processed datasets, frozen
-splits, provenance, and source tables:
+available from Zenodo. The reviewer-facing upload is a single combined archive:
+
+- Archive name: `GeneSPT.zip`
+- Zenodo DOI/record: pending final publication; replace after publication.
+- MD5: `bab51420a0a961dc6a9d85f1f980b393`
+- SHA256: `0ae1a6384aca693c173b61a315c6426174106a863d07ae5523b8cc2ac7fa0351`
+
+`GeneSPT.zip` contains:
+
+- `README_combined_upload.txt`
+- `GeneSPT_manuscript_data_20260610.zip`
+- `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
+
+The original data-only archive remains available for provenance:
 
 - DOI: <https://doi.org/10.5281/zenodo.20630224>
 - Archive name: `GeneSPT_manuscript_data_20260610.zip`
 - Zenodo MD5: `872c96ff8d5bd6ac565b1843f46145c8`
 - SHA256: `E932BD33D04CE14D2AF4CEB33F7F0376B1867EE5CFA2F177E17D2C702993E701`
 
-Prediction-matrix addendum prepared for upload:
+The prediction-matrix inner archive is:
 
 - Archive name: `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
 - SHA256: `8c771f0f72a3a5cc533fc620c74eca3329a90ef8b596b9c1e427c15b8581e93f`
-- DOI/record: pending Zenodo upload; replace after publication.
 
 ## Expected Zenodo Internal Folders
 
-The local package staged for Zenodo uses these top-level entries:
+After extracting `GeneSPT.zip`, extract
+`GeneSPT_manuscript_data_20260610.zip`. The extracted manuscript data archive
+uses these top-level entries:
 
 ```text
 processed_datasets/
@@ -54,7 +67,9 @@ can be run directly against the extracted Zenodo folder:
 python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
 ```
 
-The prediction-matrix addendum uses these top-level entries:
+After extracting `GeneSPT.zip`, extract
+`GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`. The extracted
+prediction-matrix archive uses these top-level entries:
 
 ```text
 prediction_matrices/
@@ -125,7 +140,7 @@ The addendum includes:
 - `manifests/DATASET_AUDIT_MANIFEST.csv`
 - `manifests/GROUND_TRUTH_MATRIX_MANIFEST.csv`
 
-Use:
+Use the extracted prediction-matrix archive as `--addendum-root`:
 
 ```bash
 python scripts/verify_prediction_addendum.py --addendum-root /path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626
