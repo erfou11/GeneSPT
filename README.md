@@ -245,8 +245,8 @@ in `docs/SOURCE_ANCHOR.md`; no replacement dependency has been invented.
 The reviewer-facing data package is a single combined Zenodo upload:
 
 - File: `GeneSPT.zip`
-- Zenodo DOI/record: pending final publication; replace this line after
-  publication.
+- DOI: <https://doi.org/10.5281/zenodo.20965448>
+- Zenodo record: <https://zenodo.org/records/20965448>
 - MD5: `bab51420a0a961dc6a9d85f1f980b393`
 - SHA256: `0ae1a6384aca693c173b61a315c6426174106a863d07ae5523b8cc2ac7fa0351`
 

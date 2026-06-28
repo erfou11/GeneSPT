@@ -207,8 +207,8 @@ reintroduce Pearson-labeled SPCC.
 
 1. Recover or reconstruct from archived provenance the missing
    `run_final_dataset_audit.py` equivalent without inventing data.
-2. Add final Zenodo DOI/record metadata for the combined `GeneSPT.zip` package
-   after publication.
+2. Final Zenodo DOI/record metadata for the combined `GeneSPT.zip` package has
+   been added: <https://doi.org/10.5281/zenodo.20965448>.
 3. Optionally add CI or a smaller CPU-only smoke environment so reviewers do
    not need to build the CUDA image just to check the evaluator.
 4. Confirm final manuscript-facing terminology in public docs.
