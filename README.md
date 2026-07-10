@@ -39,6 +39,7 @@ src/genespt/        Lightweight public I/O and metric helpers
 configs/            Dataset configuration templates
 docs/               Reproduction, provenance, and output documentation
 data/               Local data mount; large contents are ignored
+frozen_inputs/      Local frozen caches and binary splits; ignored
 splits/             Frozen split mount; binary files are ignored
 results/            Local experiment outputs; generated contents are ignored
 figures/            Local rendered figures; generated contents are ignored

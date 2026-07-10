@@ -34,6 +34,7 @@ data/*
 data_full_context/
 baseline/
 final_output/
+frozen_inputs/
 
 splits/*
 !splits/README.md
