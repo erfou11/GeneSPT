@@ -2,7 +2,7 @@
 """Gene-spatiality-aware gene-conditioned learning for strict whole-gene.
 
 This is an isolated strict whole-gene diagnostic. It does not use old
-fixed-output SBD/GSPC/DDPM modules. Test-gene spatiality is used only for
+fixed-output legacy modules. Test-gene spatiality is used only for
 final reporting subgroups, never for training or hyperparameter selection.
 """
 
@@ -428,7 +428,7 @@ def run_training_gate(args) -> pd.DataFrame:
         "- Train-gene MoranI/Geary are used only for train-gene weighting/sampling.",
         "- Val genes select variants/checkpoints.",
         "- Test-gene spatiality is used only for final subgroup reporting.",
-        "- No old fixed-output SBD/GSPC/DDPM modules are used.",
+        "- No legacy fixed-output modules are used.",
         "",
         "## Fold0 Summary",
         df[["model", "SPCC", "SSIM", "RMSE", "JS", "low_expr_SPCC", "high_spatial_SPCC", "delta_SPCC_vs_base", "delta_RMSE_vs_base", "delta_JS_vs_base", "delta_high_spatial_SPCC_vs_base"]].to_string(index=False),

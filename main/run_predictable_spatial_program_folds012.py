@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Folds0-2 validation for predictable spatial program transfer.
+"""Multi-fold validation for predictable spatial program transfer.
 
 This validates the fold0-selected mechanism without introducing a new module:
 
   - SVD spatial programs learned from train genes only, raw expression, K=64.
-  - Coefficients predicted from pca32+nmf32 descriptors with Ridge alpha=10.
+  - Coefficients predicted from a configurable descriptor with Ridge alpha=10.
   - Top-32 predictable components selected on val genes.
   - Spatiality-bin lambdas selected on val genes.
   - Test genes are evaluated once per fold.
@@ -86,16 +86,46 @@ def load_or_train_base_cached(
     device: torch.device,
     args,
     fold: int,
-) -> tuple[dict[str, np.ndarray], pd.DataFrame]:
-    residual_dir = args.out_dir / "gc_residual_maps"
+) -> tuple[dict[str, np.ndarray | None], pd.DataFrame]:
+    cache_candidates: list[Path] = []
+    if args.base_cache_dir is not None:
+        cache_candidates = [
+            args.base_cache_dir / f"fold{fold}" / "gc_mlp_pca32_softplus_correct.npz",
+            args.base_cache_dir / f"fold{fold}_canonical_gc_mlp_residual_maps.npz",
+        ]
+
+    if args.reuse_base:
+        for cache in cache_candidates:
+            if not cache.exists():
+                continue
+            cached = np.load(cache)
+            required = {"pred_val", "pred_test"}
+            missing = sorted(required.difference(cached.files))
+            if missing:
+                raise KeyError(f"GC cache {cache} is missing required arrays: {missing}")
+            for key, expected in (("train_idx", train_idx), ("val_idx", val_idx), ("test_idx", test_idx)):
+                if key in cached.files and not np.array_equal(cached[key].astype(np.int64), expected.astype(np.int64)):
+                    raise ValueError(f"GC cache split mismatch for {key}: {cache}")
+            return (
+                {
+                    "train": cached["pred_train"] if "pred_train" in cached.files else None,
+                    "val": cached["pred_val"],
+                    "test": cached["pred_test"],
+                },
+                pd.DataFrame([{"fold": fold, "source": "canonical_cache", "path": str(cache)}]),
+            )
+
+    if not args.allow_train_base:
+        searched = ", ".join(str(path) for path in cache_candidates) or "no --base-cache-dir supplied"
+        raise FileNotFoundError(
+            "Canonical GC cache was not found. Supply --base-cache-dir pointing to the frozen "
+            "Vis9A final_multidataset_cache dataset directory. Refusing to train a replacement GC "
+            f"model implicitly. Searched: {searched}"
+        )
+
+    residual_dir = args.out_dir / "gc_residual_maps_explicit_retrain"
     residual_dir.mkdir(parents=True, exist_ok=True)
     cache = residual_dir / f"fold{fold}_canonical_gc_mlp_residual_maps.npz"
-    if cache.exists() and args.reuse_base:
-        cached = np.load(cache)
-        return (
-            {"train": cached["pred_train"], "val": cached["pred_val"], "test": cached["pred_test"]},
-            pd.DataFrame([{"fold": fold, "source": "cache", "path": str(cache)}]),
-        )
     train_values = X[:, train_idx].reshape(-1)
     preds, hist, _ = train_canonical_base(
         X=X,
@@ -184,6 +214,16 @@ def paired_tests(long_df: pd.DataFrame, base_model: str, selected_model: str, me
             if pivot.shape[0] < 2:
                 continue
             diff = pivot[other].to_numpy(dtype=float) - pivot[base_model].to_numpy(dtype=float)
+            mean_delta = float(np.mean(diff))
+            delta_sd = float(np.std(diff, ddof=1)) if diff.size > 1 else np.nan
+            delta_se = float(delta_sd / np.sqrt(diff.size)) if diff.size > 1 else np.nan
+            if diff.size > 1 and np.isfinite(delta_se):
+                half_width = float(st.t.ppf(0.975, df=diff.size - 1) * delta_se)
+                ci95_low = mean_delta - half_width
+                ci95_high = mean_delta + half_width
+            else:
+                ci95_low = np.nan
+                ci95_high = np.nan
             try:
                 t_p = float(st.ttest_rel(pivot[other], pivot[base_model], nan_policy="omit").pvalue)
             except Exception:
@@ -200,13 +240,59 @@ def paired_tests(long_df: pd.DataFrame, base_model: str, selected_model: str, me
                     "n_folds": int(pivot.shape[0]),
                     "mean_base": float(pivot[base_model].mean()),
                     "mean_model": float(pivot[other].mean()),
-                    "mean_delta": float(np.mean(diff)),
+                    "mean_delta": mean_delta,
                     "median_delta": float(np.median(diff)),
+                    "delta_sd": delta_sd,
+                    "delta_se": delta_se,
+                    "ci95_low": ci95_low,
+                    "ci95_high": ci95_high,
                     "paired_t_p": t_p,
                     "wilcoxon_p": w_p,
                 }
             )
     return pd.DataFrame(rows)
+
+
+def save_prediction_matrix(
+    root: Path,
+    model: str,
+    fold: int,
+    prediction: np.ndarray,
+    base_prediction: np.ndarray,
+    train_idx: np.ndarray,
+    val_idx: np.ndarray,
+    test_idx: np.ndarray,
+    genes: list[str],
+    descriptor: str,
+    keep: np.ndarray,
+    lambdas: dict[str, float],
+    q1: float,
+    q2: float,
+) -> Path:
+    path = root / model / f"fold{fold}" / "prediction.npz"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        path,
+        prediction=prediction.astype(np.float32),
+        base_prediction=base_prediction.astype(np.float32),
+        train_gene_idx=train_idx.astype(np.int64),
+        val_gene_idx=val_idx.astype(np.int64),
+        test_gene_idx=test_idx.astype(np.int64),
+        test_genes=np.asarray([genes[int(i)] for i in test_idx], dtype=object),
+        model=np.asarray(model, dtype=object),
+        fold=np.asarray(fold, dtype=np.int64),
+        base_descriptor=np.asarray("pca32", dtype=object),
+        psp_descriptor=np.asarray(descriptor, dtype=object),
+        component_keep=keep.astype(np.int64),
+        lambda_low=np.asarray(lambdas["low"], dtype=np.float64),
+        lambda_mid=np.asarray(lambdas["mid"], dtype=np.float64),
+        lambda_high=np.asarray(lambdas["high"], dtype=np.float64),
+        spatiality_q1=np.asarray(q1, dtype=np.float64),
+        spatiality_q2=np.asarray(q2, dtype=np.float64),
+        posthoc_calibration=np.asarray("none", dtype=object),
+        readout=np.asarray("identity", dtype=object),
+    )
+    return path
 
 
 def write_figures(
@@ -305,7 +391,7 @@ def write_figures(
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--folds", type=int, nargs="+", default=[0, 1, 2])
+    ap.add_argument("--folds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
     ap.add_argument("--counts-path", type=Path, default=Path("/workspace/GeneSPT/data/Vis9A_D7_spaim_effective4470/Spatial_count.txt"))
     ap.add_argument("--scrna-counts-path", type=Path, default=Path("/workspace/GeneSPT/data/Vis9A_D7_spaim_effective4470/scRNA_count.txt"))
     ap.add_argument("--locations-path", type=Path, default=Path("/workspace/GeneSPT/data/Vis9A_D7_spaim_effective4470/Locations.txt"))
@@ -317,8 +403,44 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=2e-3)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--reuse-base", action=argparse.BooleanOptionalAction, default=True)
+    ap.add_argument(
+        "--base-cache-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Frozen Vis9A canonical GC cache dataset directory. Expected layout: "
+            "foldN/gc_mlp_pca32_softplus_correct.npz."
+        ),
+    )
+    ap.add_argument(
+        "--allow-train-base",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Explicitly permit retraining a replacement GC base when the frozen cache is unavailable.",
+    )
+    ap.add_argument(
+        "--psp-descriptor",
+        choices=["pca32", "nmf32", "pca32_nmf32"],
+        default="pca32_nmf32",
+    )
+    ap.add_argument(
+        "--allow-noncanonical-psp-descriptor",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Permit descriptor sensitivity runs other than the frozen PCA32+NMF32 PSP configuration.",
+    )
+    ap.add_argument(
+        "--save-prediction-matrices",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
     ap.add_argument("--output-prefix", type=str, default="predictable_spatial_program_folds012")
     args = ap.parse_args()
+    if args.psp_descriptor != "pca32_nmf32" and not args.allow_noncanonical_psp_descriptor:
+        ap.error(
+            "The frozen PSP configuration uses --psp-descriptor pca32_nmf32. "
+            "Pass --allow-noncanonical-psp-descriptor only for an explicitly labeled sensitivity run."
+        )
     args.out_dir.mkdir(parents=True, exist_ok=True)
     fig_dir = args.out_dir / "psp_mechanism_figures"
 
@@ -335,7 +457,9 @@ def main() -> None:
     X_sc = log1p_cpm(X_sc_counts)
     desc = build_descriptors(X_sc, pca_dims=[32], nmf_dims=[32], seed=args.seed)
     desc["pca32_nmf32"] = np.concatenate([desc["pca32"], desc["nmf32"]], axis=1).astype(np.float32)
-    D = desc["pca32_nmf32"]
+    D = desc[args.psp_descriptor]
+
+    prediction_root = args.out_dir / f"{args.output_prefix}_prediction_matrices"
 
     long_rows = []
     gene_rows = []
@@ -383,7 +507,7 @@ def main() -> None:
         comp_df.insert(1, "method", "svd")
         comp_df.insert(2, "preprocess", "raw")
         comp_df.insert(3, "K", basis.k)
-        comp_df.insert(4, "descriptor", "pca32_nmf32")
+        comp_df.insert(4, "descriptor", args.psp_descriptor)
         comp_df.insert(5, "predictor", "ridge")
         comp_df.insert(6, "alpha", 10.0)
         comp_df["rank_score"] = comp_df["component_spearman"].fillna(-1.0) * np.log1p(comp_df["oracle_coeff_var"].clip(lower=0))
@@ -418,7 +542,7 @@ def main() -> None:
             "method": "svd",
             "preprocess": "raw",
             "K": basis.k,
-            "descriptor": "pca32_nmf32",
+            "descriptor": args.psp_descriptor,
             "predictor": "ridge",
             "alpha": 10.0,
             "topK_pred": len(keep),
@@ -437,6 +561,10 @@ def main() -> None:
             selected_meta,
         )
 
+        fold_predictions = {
+            "gc_mlp_base": base["test"],
+            "predictable_spatial_program_selected_correct": selected_test,
+        }
         controls = [
             ("shuffled_descriptor", make_descriptor_control(D, "shuffled", seed=args.seed + 1 + fold)[0], basis, False),
             ("random_descriptor", make_descriptor_control(D, "random", seed=args.seed + 2 + fold)[0], basis, False),
@@ -480,7 +608,7 @@ def main() -> None:
                     "method": "svd",
                     "preprocess": "raw",
                     "K": basis.k,
-                    "descriptor": "pca32_nmf32",
+                    "descriptor": args.psp_descriptor,
                     "predictor": "ridge",
                     "alpha": 10.0,
                     "topK_pred": len(keep),
@@ -491,6 +619,26 @@ def main() -> None:
             )
             fold_rows.append(row)
             fold_gene.append(gene_df)
+            fold_predictions[f"predictable_spatial_program_{name}_control"] = pred_ctrl
+
+        if args.save_prediction_matrices:
+            for model_name, prediction in fold_predictions.items():
+                save_prediction_matrix(
+                    prediction_root,
+                    model_name,
+                    fold,
+                    prediction,
+                    base["test"],
+                    train_idx,
+                    val_idx,
+                    test_idx,
+                    genes,
+                    args.psp_descriptor,
+                    keep,
+                    lambdas,
+                    float(q1),
+                    float(q2),
+                )
 
         fold_df = pd.DataFrame(fold_rows)
         base_row = fold_df[fold_df["role"].eq("base")].iloc[0]
@@ -518,6 +666,27 @@ def main() -> None:
     comp_all = pd.concat(comp_rows, ignore_index=True)
     lambda_all = pd.concat(lambda_selection_rows, ignore_index=True)
 
+    metric_columns = ["SPCC", "SSIM", "RMSE", "JS"]
+    completeness_rows = []
+    for (model, fold), group in gene_df.groupby(["model", "fold"], sort=True):
+        row = {
+            "model": model,
+            "fold": int(fold),
+            "total_test_genes": int(len(group)),
+        }
+        for metric in metric_columns:
+            finite = np.isfinite(group[metric].to_numpy(dtype=float))
+            row[f"valid_{metric}"] = int(finite.sum())
+            row[f"missing_{metric}"] = int((~finite).sum())
+        completeness_rows.append(row)
+    completeness = pd.DataFrame(completeness_rows)
+    expected_n = int(completeness["total_test_genes"].iloc[0])
+    if not completeness["total_test_genes"].eq(expected_n).all():
+        raise RuntimeError("Model-dependent test-gene counts detected")
+    missing_columns = [f"missing_{metric}" for metric in metric_columns]
+    if int(completeness[missing_columns].to_numpy().sum()) != 0:
+        raise RuntimeError("Non-finite test-gene metrics detected")
+
     prefix = args.output_prefix
     long_path = args.out_dir / f"{prefix}_long.csv"
     summary_path = args.out_dir / f"{prefix}_summary.csv"
@@ -526,11 +695,39 @@ def main() -> None:
     gene_path = args.out_dir / f"{prefix}_gene_level.csv"
     comp_path = args.out_dir / f"{prefix}_component_predictability.csv"
     lambda_path = args.out_dir / f"{prefix}_lambda_selection.csv"
+    completeness_path = args.out_dir / f"{prefix}_metric_completeness.csv"
+    config_path = args.out_dir / f"{prefix}_run_config.json"
 
     long_df.to_csv(long_path, index=False)
     gene_df.to_csv(gene_path, index=False)
     comp_all.to_csv(comp_path, index=False)
     lambda_all.to_csv(lambda_path, index=False)
+    completeness.to_csv(completeness_path, index=False)
+    config_path.write_text(
+        json.dumps(
+            {
+                "folds": [int(x) for x in args.folds],
+                "seed": int(args.seed),
+                "base_descriptor": "pca32",
+                "psp_descriptor": args.psp_descriptor,
+                "basis": "TruncatedSVD raw K=64",
+                "coefficient_predictor": "ridge alpha=10",
+                "component_selection": "top-32 ranked on validation genes",
+                "fusion": "predicted-spatiality bins selected on validation genes",
+                "posthoc_calibration": "none",
+                "readout": "identity",
+                "test_gene_metric_policy": "fixed frozen test set; fail on any non-finite metric",
+                "prediction_matrices_saved": bool(args.save_prediction_matrices),
+                "base_cache_dir": str(args.base_cache_dir) if args.base_cache_dir else None,
+                "allow_train_base": bool(args.allow_train_base),
+                "allow_noncanonical_psp_descriptor": bool(args.allow_noncanonical_psp_descriptor),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     metrics = ["SPCC", "SSIM", "RMSE", "JS", "low_expr_SPCC", "high_spatial_SPCC", "high_spatial_RMSE"]
     summary = (
@@ -581,7 +778,8 @@ def main() -> None:
                 "",
                 "## Fixed Mechanism",
                 "- basis: SVD raw K=64 learned from train genes only",
-                "- descriptor: pca32_nmf32",
+                f"- base descriptor: pca32",
+                f"- PSP coefficient descriptor: {args.psp_descriptor}",
                 "- coefficient predictor: ridge alpha=10.0 trained on train genes only",
                 "- component filter: top-32 predictable components ranked on val genes",
                 "- lambda mode: predicted spatiality bins selected on val genes",
@@ -618,6 +816,9 @@ def main() -> None:
                 f"- {gene_path}",
                 f"- {comp_path}",
                 f"- {lambda_path}",
+                f"- {completeness_path}",
+                f"- {config_path}",
+                f"- {prediction_root if args.save_prediction_matrices else 'prediction matrices not requested'}",
                 f"- {fig_dir}",
             ]
         )

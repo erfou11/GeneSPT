@@ -1,48 +1,63 @@
 # GeneSPT
 
-Reviewer-facing code repository for:
+Reviewer-facing source repository for:
 
-**GeneSPT: Gene-Conditioned Spatial Program Transfer for Unmeasured Gene Prediction in Spatial Transcriptomics**
+**GeneSPT: Gene-Conditioned Spatial Program Transfer for Unmeasured Gene
+Prediction in Spatial Transcriptomics**
 
-This repository is now anchored to the final local GeneSPT manuscript code. The
-method/reproduction scripts in `main/` and selected scripts in `scripts/` were
-copied from the final local workbench rather than rewritten as a separate
-simplified implementation.
+GeneSPT evaluates unmeasured-gene prediction under strict whole-gene holdout.
+The model combines:
 
-See `docs/SOURCE_ANCHOR.md` for the source-anchor policy and known dependency
-limits.
+1. scRNA-derived target-gene descriptors;
+2. a shared gene-conditioned decoder (GeneSPT-GC);
+3. Predictable Spatial Program Transfer (PSP), which predicts gene-specific
+   coefficients for spatial programs estimated from training-gene ST maps;
+4. pre-specified validation-selected fusion/readout rules frozen before test
+   evaluation; and
+5. a centralized evaluator for SPCC, RMSE, JS/JSD, and SSIM.
 
-## What This Repository Contains
+## Repository Scope
 
-- anchored final local code for strict whole-gene GC, PSP, evaluator, and
-  manuscript figure/source-table paths;
-- a thin public evaluator wrapper under `src/genespt/` that calls the anchored
-  final metric implementation;
-- dataset path templates under `configs/`;
-- documentation for the Zenodo data archive and manuscript reproduction paths.
+This checkout is anchored to the cleaned local manuscript workbench on
+2026-07-10. Active method and figure code is under `main/` and `scripts/`.
+Superseded model routes, mistaken configurations, historical results, raw
+data, prediction matrices, and checkpoints are intentionally not tracked.
 
-Large datasets, processed matrices, checkpoints, prediction matrices, and
-figure outputs are not tracked in GitHub. Processed data, source tables, and
-final prediction matrices are archived on Zenodo in a single combined package,
-`GeneSPT.zip`.
+Large reviewer-facing data and result artifacts are archived at:
 
-## Repository Layout
+- Zenodo DOI: <https://doi.org/10.5281/zenodo.21223023>
+- Zenodo record: <https://zenodo.org/records/21223023>
+
+GitHub does not contain raw or processed expression matrices.
+
+## Layout
 
 ```text
-main/               Anchored final local method and reproduction scripts
-src/genespt/        Thin public evaluator/io wrappers only
-scripts/            Public evaluator plus anchored final figure/table scripts
-configs/            Dataset path templates
-docs/               Data, archive, baseline, source-anchor, and reproduction notes
-data/               Local data mount point; ignored by Git
-splits/             Local fixed split mount point; binary files ignored
-results/            Local outputs; predictions/checkpoints ignored
-figures/            Lightweight figure notes/source tables only
-tests/              Synthetic evaluator smoke tests
+main/               Active GeneSPT, PSP, evaluator, and benchmark scripts
+scripts/            Active manuscript figure and downstream-analysis scripts
+src/genespt/        Lightweight public I/O and metric helpers
+configs/            Dataset configuration templates
+docs/               Reproduction, provenance, and output documentation
+data/               Local data mount; large contents are ignored
+splits/             Frozen split mount; binary files are ignored
+results/            Local experiment outputs; generated contents are ignored
+figures/            Local rendered figures; generated contents are ignored
+tests/              Synthetic smoke and metric tests
 baseline_adapters/  Notes for external baseline adapters
 ```
 
 ## Installation
+
+The manuscript experiments use the CUDA Docker environment documented in
+`ENVIRONMENT.md`.
+
+```powershell
+cd D:\TESTWORK001
+docker compose up -d genespt
+docker compose exec genespt bash -lc "cd /workspace/GeneSPT && python scripts/env_smoke_test.py"
+```
+
+For a standalone environment:
 
 ```bash
 conda env create -f environment.yml
@@ -50,119 +65,7 @@ conda activate genespt
 pip install -e .
 ```
 
-Docker is also supported:
-
-```bash
-docker build -t genespt:paper .
-docker run --gpus all --rm -it -v "$PWD:/workspace/GeneSPT" genespt:paper bash
-```
-
-The anchored final scripts use the original final-workbench convention
-`/workspace/GeneSPT` in several defaults. Running in the Docker command above
-keeps that convention intact.
-
-## Smoke Test
-
-The smoke test uses synthetic matrices and checks the anchored evaluator path:
-
-```bash
-python tests/smoke_test.py
-```
-
-## Main Performance Verification
-
-For reviewer-facing checks, start with the main benchmark source values, not the
-PSP ablation scripts. Download `GeneSPT.zip` from Zenodo, extract it, then
-extract the inner archive `GeneSPT_manuscript_data_20260610.zip`. Mount that
-extracted inner folder as `/data` inside Docker and run:
-
-```bash
-docker run --rm \
-  -v "$PWD:/workspace/GeneSPT" \
-  -v "/path/to/GeneSPT_manuscript_data_20260610:/data" \
-  -w /workspace/GeneSPT \
-  genespt:paper \
-  python scripts/verify_main_performance_from_zenodo.py --zenodo-root /data
-```
-
-This command:
-
-- reads the Zenodo primary benchmark source table;
-- writes the legacy Figure 2 input expected by the anchored final script;
-- reruns `main/generate_figure2_primary_dotplot.py`;
-- verifies that the generated Figure 2 source CSV matches the archived final
-  Figure 2 source CSV;
-- reports the primary GeneSPT SPCC, SSIM, RMSE, and JS/JSD values.
-
-Expected report:
-
-```text
-results/reproduction/main_performance_source_check/README.md
-```
-
-This is a source-value verification path. It does not retrain models. To
-recompute metrics from saved prediction matrices, use the saved-prediction
-verification command below.
-
-## Saved Prediction-Matrix Verification
-
-After extracting `GeneSPT.zip`, extract the inner archive
-`GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`. Mount that
-extracted inner folder as `/addendum` and run:
-
-```bash
-docker run --rm \
-  -v "$PWD:/workspace/GeneSPT" \
-  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
-  -w /workspace/GeneSPT \
-  genespt:paper \
-  python scripts/verify_prediction_addendum.py --addendum-root /addendum
-```
-
-For a quick check on one dataset-method pair:
-
-```bash
-docker run --rm \
-  -v "$PWD:/workspace/GeneSPT" \
-  -v "/path/to/GeneSPT_zenodo_addendum_prediction_matrices_20260626:/addendum" \
-  -w /workspace/GeneSPT \
-  genespt:paper \
-  python scripts/verify_prediction_addendum.py \
-    --addendum-root /addendum \
-    --datasets MHPR_current_panel \
-    --methods GeneSPT
-```
-
-This writes fold-level and dataset-method aggregate metrics under
-`results/reproduction/prediction_matrix_addendum_check/`.
-
-## Data Layout
-
-For the public evaluator wrapper, place archived inputs locally as:
-
-```text
-data/processed/<dataset_id>/
-  st_matrix.npy          # spots x genes
-  scrna_matrix.npy       # cells x genes, if needed by the selected script
-  coordinates.npy
-  gene_names.txt
-
-splits/<dataset_id>/
-  fold0_train_gene_idx.npy
-  fold0_val_gene_idx.npy
-  fold0_test_gene_idx.npy
-```
-
-The anchored final scripts in `main/` may instead expect the final-workbench
-text layout under `/workspace/GeneSPT/data/<dataset_id>/`:
-
-```text
-Spatial_count.txt
-scRNA_count.txt
-Locations.txt
-```
-
-## Manuscript Datasets
+## Dataset Set
 
 Primary datasets:
 
@@ -176,99 +79,66 @@ Cross-platform datasets:
 - MHPR/MERFISH
 - MVC/STARmap
 
-Dataset-specific path templates are available under `configs/`.
+Expected local paths are documented in `configs/` and `docs/DATA.md`.
 
-## Anchored Method Commands
+## Strict Holdout Boundary
 
-These are method and ablation validation paths. They are not the first-line
-main performance reproduction path.
+Training-gene ST expression may be used for model fitting and spatial-program
+estimation. Validation-gene ST expression may be used for model and component
+selection. Test-gene ST expression is reserved for final evaluation only.
+scRNA-derived descriptors are external gene-identity inputs and do not contain
+test-gene ST spatial expression.
 
-GeneSPT-GC validation path from the final local code:
+## PSP Experiment Entry Point
+
+The guarded five-fold PSP runner is:
 
 ```bash
-python main/run_gene_conditioned_decoder_folds012_validation.py --folds 0,1,2
+python main/run_predictable_spatial_program_folds012.py \
+  --folds 0 1 2 3 4 \
+  --base-cache-dir /path/to/frozen/canonical_gc_cache \
+  --psp-descriptor pca32_nmf32 \
+  --save-prediction-matrices \
+  --out-dir /path/to/output
 ```
 
-PSP validation path from the final local code:
-
-```bash
-python main/run_predictable_spatial_program_folds012.py --folds 0 1 2
-```
-
-These scripts preserve final local defaults. Use explicit `--counts-path`,
-`--scrna-counts-path`, `--locations-path`, `--mask-dir`, and `--out-dir`
-arguments if your extracted Zenodo files are not mounted at `/workspace/GeneSPT`.
-
-## Centralized Evaluation
-
-`scripts/evaluate_predictions.py` is a lightweight public entry point. The
-metric logic comes from:
+The runner refuses implicit replacement-base training and non-canonical PSP
+descriptors unless explicit override flags are supplied. The cache must use:
 
 ```text
-main/run_strict_gene_conditioned_decoder_gate.py::gene_metrics
+foldN/gc_mlp_pca32_softplus_correct.npz
 ```
 
-SPCC is Spearman correlation across spatial locations. SSIM is not multiplied
-by 10.
+## Evaluation
 
-```bash
-python scripts/evaluate_predictions.py \
-  --true data/processed/Vis9A_D7_spaim_effective4470/st_matrix.npy \
-  --pred results/predictions/Vis9A_D7_spaim_effective4470/GeneSPT/fold0/prediction_test.npy \
-  --test-indices splits/Vis9A_D7_spaim_effective4470/fold0_test_gene_idx.npy \
-  --out results/evaluation/Vis9A_fold0_GeneSPT_summary.csv
-```
+Metric implementations used by the active workbench are in:
 
-The evaluator command requires a saved prediction matrix. Use the prediction
-matrix inner archive from `GeneSPT.zip` for the archived final benchmark
-matrices and evaluator-ready `log1p(CPM)` ground-truth arrays.
+- `main/evaluate_spatial_pattern_metrics.py`
+- `main/metrics_refstyle.py`
+- `main/run_strict_gene_conditioned_decoder_gate.py`
 
-## Manuscript Reproduction
+Saved prediction matrices must retain dataset ID, fold ID, method, spot IDs,
+test-gene indices, and gene identifiers. See `docs/OUTPUT_SCHEMA.md`.
 
-Start with:
+## Manuscript Outputs
 
-```text
-docs/REPRODUCE_MANUSCRIPT.md
-docs/SOURCE_ANCHOR.md
-docs/DATA.md
-docs/REPRODUCTION_STATUS.md
-docs/TERMINOLOGY.md
-```
+- Figure 2: `main/generate_figure2_primary_dotplot.py`
+- Figure 4: `scripts/generate_figure4_hbc_representative_maps.py`
+- Figure 5: `main/generate_figure5_cross_platform_per_gene_violins.py`
+- Figure 6: `scripts/generate_main_downstream_figure6_final.py`
 
-Some final benchmark/table scripts are preserved as source-anchored artifacts
-but still require a missing local dependency, `run_final_dataset_audit.py`, or
-the equivalent dataset manifest from the archived package. This is documented
-in `docs/SOURCE_ANCHOR.md`; no replacement dependency has been invented.
+Figure 3 mechanism analyses require the frozen GC cache and strict split files
+from the local/Zenodo provenance bundle. This repository does not claim a
+one-command full manuscript reproduction while those large inputs remain
+external.
 
-## Data Availability
+## External Baselines
 
-The reviewer-facing data package is a single combined Zenodo upload:
+The manuscript compares GeneSPT with Tangram, TransImp, SpaIM, SpaGE, and
+stPlus using the same frozen whole-gene splits and centralized evaluator.
+Third-party repositories are not vendored here.
 
-- File: `GeneSPT.zip`
-- DOI: <https://doi.org/10.5281/zenodo.20965448>
-- Zenodo record: <https://zenodo.org/records/20965448>
-- MD5: `bab51420a0a961dc6a9d85f1f980b393`
-- SHA256: `0ae1a6384aca693c173b61a315c6426174106a863d07ae5523b8cc2ac7fa0351`
+## Citation and License
 
-`GeneSPT.zip` contains:
-
-- `README_combined_upload.txt`
-- `GeneSPT_manuscript_data_20260610.zip`
-- `GeneSPT_zenodo_addendum_prediction_matrices_20260626.zip`
-
-The original data-only Zenodo record is retained for provenance:
-
-- DOI: <https://doi.org/10.5281/zenodo.20630224>
-- File: `GeneSPT_manuscript_data_20260610.zip`
-- Zenodo MD5: `872c96ff8d5bd6ac565b1843f46145c8`
-- SHA256: `E932BD33D04CE14D2AF4CEB33F7F0376B1867EE5CFA2F177E17D2C702993E701`
-
-## Citation
-
-The manuscript DOI will be added after preprint or journal release. Until then,
-cite the GitHub repository and the Zenodo data archive.
-
-## License
-
-Apache-2.0. Repository owner should confirm the final license before public
-release.
+See `CITATION.cff`. The repository is distributed under the Apache-2.0
+license; data retain the terms of their original sources and the Zenodo record.

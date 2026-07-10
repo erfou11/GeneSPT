@@ -8,8 +8,9 @@ __pycache__/
 
 .DS_Store
 Thumbs.db
+*.log
 
-# Large data and generated artifacts belong in Zenodo, not GitHub.
+# Large biological data and binary model artifacts belong in Zenodo/local storage.
 *.h5ad
 *.h5
 *.loom
@@ -27,17 +28,21 @@ Thumbs.db
 *.zip
 *.gz
 
-data/raw/
-data/processed/
-splits/**/*.npy
-results/predictions/
-results/checkpoints/
-results/reproduction/
-results/**/*.npy
-results/**/*.npz
-results/**/*.pkl
-figures/*.png
-figures/*.pdf
-figures/*.svg
+# Local workbench mounts. Keep only the lightweight README files below.
+data/*
+!data/README.md
+data_full_context/
+baseline/
+final_output/
+
+splits/*
+!splits/README.md
+results/*
+!results/README.md
+figures/*
+!figures/README.md
+
 wandb/
 runs/
+tmp/
+_tmp*/

@@ -50,10 +50,10 @@ DATASETS = [
     ("MVC", "MVC/STARmap", "MVC_shared981"),
 ]
 METRICS = [
-    ("1 - SPCC", "SPCC", "1 - SPCC ↓", lambda s: 1.0 - s),
-    ("RMSE", "RMSE", "RMSE ↓", lambda s: s),
-    ("JS/JSD", "JS", "JS/JSD ↓", lambda s: s),
-    ("1 - raw SSIM", "SSIM", "1 - raw SSIM ↓", lambda s: 1.0 - s),
+    ("1 - SPCC", "SPCC", "1 - SPCC", lambda s: 1.0 - s),
+    ("RMSE", "RMSE", "RMSE", lambda s: s),
+    ("JS/JSD", "JS", "JS/JSD", lambda s: s),
+    ("1 - SSIM", "SSIM", "1 - SSIM", lambda s: 1.0 - s),
 ]
 
 
@@ -368,8 +368,8 @@ def write_outputs(long: pd.DataFrame, checks: pd.DataFrame) -> None:
     (OUT / "figure5_cross_platform_per_gene_violins_caption.md").write_text(
         "Figure 5. Per-gene prediction performance across cross-platform spatial "
         "transcriptomics datasets. Violin plots show metric distributions over held-out "
-        "test genes under the strict whole-gene evaluation protocol. SPCC and raw SSIM "
-        "are shown as 1-SPCC and 1-raw SSIM so that lower values consistently indicate "
+        "test genes under the strict whole-gene evaluation protocol. SPCC and SSIM "
+        "are shown as 1-SPCC and 1-SSIM so that lower values consistently indicate "
         "better prediction across all panels. GeneSPT is compared with complete external "
         "baselines using the same frozen test-gene splits.\n"
     )
@@ -406,11 +406,11 @@ def write_outputs(long: pd.DataFrame, checks: pd.DataFrame) -> None:
         f"and `figure5_cross_platform_raw_metrics_source.csv`: {max_diff:.6g}.\n"
         "- All included dataset-method combinations use five folds and complete available frozen test-gene rows.\n\n"
         "## Metric transformations\n"
-        "- Used raw SSIM values from per-gene `SSIM` columns; SSIMx10 was not used.\n"
-        "- Transformed SPCC to `1 - SPCC` and raw SSIM to `1 - raw SSIM` for the displayed violin metrics.\n"
+        "- Used SSIM values from per-gene `SSIM` columns; no additional scaling convention was applied.\n"
+        "- Transformed SPCC to `1 - SPCC` and SSIM to `1 - SSIM` for the displayed violin metrics.\n"
         "- RMSE and JS/JSD were displayed on their original per-gene scale.\n\n"
         "## Exclusions and optional outputs\n"
-        "- Excluded GeneSPT-GC, GeneSPT-LCR display suffixes, and stDiff from the figure.\n"
+        "- Excluded internal ablation labels and stDiff from the figure.\n"
         "- No dataset-method combination in the three cross-platform panels was excluded for missing per-gene metrics.\n"
         f"- {all_six_note}\n\n"
         "## Run constraints\n"

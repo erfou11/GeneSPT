@@ -92,7 +92,7 @@ def configure_fonts() -> None:
 
 
 def normalize_method(method: str) -> str | None:
-    if method in {"GeneSPT", "GeneSPT-LCR", "GeneSPT-GC-PSP", "current_descriptor_psp"}:
+    if method in {"GeneSPT", "GeneSPT-GC-PSP", "current_descriptor_psp"}:
         return "GeneSPT"
     if method == "GeneSPT-GC":
         return None
@@ -104,7 +104,6 @@ def normalize_method(method: str) -> str | None:
 def load_table_source() -> tuple[pd.DataFrame, bool, str]:
     if TABLE1.exists():
         df = pd.read_csv(TABLE1)
-        df["dataset"] = df["dataset"].replace({"MHM14780": "MHM"})
         df["method_display"] = df["method"].map(normalize_method)
         df = df[df["dataset"].isin(DATASET_ORDER) & df["method_display"].isin(METHOD_ORDER)].copy()
         df = df.rename(
@@ -298,7 +297,7 @@ def write_text_outputs(used_table: bool, source_used: str) -> None:
         f"2. Used table1_primary_benchmark_final.csv: {'yes' if used_table else 'no'}.\n"
         "3. Included only Vis9A, HBC and Cell2location mouse brain.\n"
         "4. Included only GeneSPT, SpaIM, Tangram, TransImp, SpaGE and stPlus for display.\n"
-        "5. GeneSPT-LCR was displayed as GeneSPT; GeneSPT-GC was excluded.\n"
+        "5. Internal GeneSPT-GC-PSP labels were displayed as GeneSPT; GeneSPT-GC was excluded.\n"
         "6. Used SSIM from SSIM_mean; SSIMx10_mean was not used.\n"
         "7. No model was rerun.\n"
         "8. No result values were modified.\n"

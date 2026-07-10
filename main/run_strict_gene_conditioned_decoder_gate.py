@@ -494,7 +494,7 @@ def main() -> None:
     # Part 1 diagnostic baselines.
     diag_rows = [
         {
-            "model": "current_fixed_output_genespt_ddpm_gspc",
+            "model": "legacy_fixed_output_model",
             "status": "not_run_current_arch_not_zero_shot",
             "reason": "Fixed output columns and SBD gene-index parameters receive no strict held-out gene ST gradients.",
             "SPCC": np.nan,

@@ -1,13 +1,28 @@
-numpy==1.26.4
-pandas==2.3.3
-scipy==1.15.3
-scikit-learn==1.7.2
-torch==2.1.2
-PyYAML==6.0.1
-tqdm==4.65.0
-matplotlib==3.10.8
-seaborn==0.13.2
-h5py==3.15.1
+# Direct project dependencies observed in the CUDA development container.
+# The base image already provides PyTorch 2.1.2 + CUDA 11.8:
+# pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel
+#
+# Do not install a second torch wheel into the container unless the CUDA stack is
+# being intentionally rebuilt.
+
 anndata==0.11.4
+einops==0.8.2
+h5py==3.15.1
+igraph==1.0.0
+leidenalg==0.11.0
+matplotlib==3.10.8
+numpy==1.26.4
+openpyxl==3.1.5
+pandas==2.3.3
+Pillow==12.1.1
+PyYAML==6.0.1
+rdata==0.11.2
 scanpy==1.11.5
-pytest==8.3.4
+scikit-learn==1.7.2
+scipy==1.15.3
+seaborn==0.13.2
+statsmodels==0.14.6
+timm==1.0.25
+torch-geometric==2.7.0
+tqdm==4.65.0
+umap-learn==0.5.11
