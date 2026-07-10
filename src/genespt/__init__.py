@@ -1,4 +1,4 @@
-"""Public GeneSPT release utilities anchored to the final local code."""
+"""Public GeneSPT evaluation utilities."""
 
 from .metrics import evaluate_prediction, gene_metrics
 

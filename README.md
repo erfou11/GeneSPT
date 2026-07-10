@@ -112,11 +112,22 @@ foldN/gc_mlp_pca32_softplus_correct.npz
 
 ## Evaluation
 
-Metric implementations used by the active workbench are in:
+The authoritative public complete-set evaluator is:
 
-- `main/evaluate_spatial_pattern_metrics.py`
-- `main/metrics_refstyle.py`
-- `main/run_strict_gene_conditioned_decoder_gate.py`
+- `src/genespt/metrics.py`
+
+Reviewer-facing no-data checks and archived-matrix recomputation entry points
+are:
+
+```bash
+python scripts/audit_complete_set_metrics.py --self-test
+python scripts/compare_cell2location_strict_psp.py --self-test
+```
+
+See `docs/metric_policy.md` for edge-case eligibility and
+`docs/AUDIT_REPRODUCTION.md` for the complete-set and strict Cell2location PSP
+commands. Legacy evaluator files under `main/` remain experiment provenance;
+new public audits call the centralized evaluator instead of copying formulas.
 
 Saved prediction matrices must retain dataset ID, fold ID, method, spot IDs,
 test-gene indices, and gene identifiers. See `docs/OUTPUT_SCHEMA.md`.

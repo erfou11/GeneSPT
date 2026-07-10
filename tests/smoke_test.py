@@ -1,4 +1,4 @@
-"""Synthetic smoke test for the anchored public evaluator."""
+"""Synthetic smoke test for the centralized public evaluator."""
 
 from __future__ import annotations
 

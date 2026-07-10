@@ -1,4 +1,7 @@
 # Primary benchmark: Cell2location mouse brain.
+# This file describes the full benchmark model with validation-selected fusion.
+# It is not the matched identity-readout PSP toggle; see
+# docs/AUDIT_REPRODUCTION.md for that archived-matrix comparison.
 dataset_id: Cell2location_mouse_brain_ST8059048_shared12819
 dataset_role: primary
 fold: 0
