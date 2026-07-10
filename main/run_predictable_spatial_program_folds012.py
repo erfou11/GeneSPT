@@ -708,6 +708,12 @@ def main() -> None:
             {
                 "folds": [int(x) for x in args.folds],
                 "seed": int(args.seed),
+                "counts_path": str(args.counts_path),
+                "scrna_counts_path": str(args.scrna_counts_path),
+                "locations_path": str(args.locations_path),
+                "mask_dir": str(args.mask_dir),
+                "out_dir": str(args.out_dir),
+                "output_prefix": args.output_prefix,
                 "base_descriptor": "pca32",
                 "psp_descriptor": args.psp_descriptor,
                 "basis": "TruncatedSVD raw K=64",
@@ -772,7 +778,7 @@ def main() -> None:
     decision_path.write_text(
         "\n".join(
             [
-                "# Predictable Spatial Program Folds0-2 Decision",
+                "# Predictable Spatial Program Five-Fold Decision",
                 "",
                 f"Decision: `{decision}`",
                 "",
