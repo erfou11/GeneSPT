@@ -47,8 +47,7 @@ output. This distinction is explicit in every prediction-matrix manifest row.
 
 ## Reproduction level
 
-The public repository exposes the exact adapters and formal schedulers, but it
-does not vendor third-party repositories. Full retraining therefore requires
-checking out the recorded upstream revisions and applying the supplied patches.
-Reviewers can independently reproduce all reported benchmark metrics without
-retraining by running the matrix-level command in `docs/REPRODUCE_PROTOCOL_A.md`.
+Full retraining uses the recorded upstream revisions together with the
+supplied adapters and patches. Reported benchmark metrics can be recomputed
+from the archived matrices using the command in
+`docs/REPRODUCE_PROTOCOL_A.md`.

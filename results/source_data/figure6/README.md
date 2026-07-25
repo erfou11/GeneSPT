@@ -14,5 +14,5 @@ completed-matrix clustering analysis:
 The same completed-matrix rule and clustering configuration are applied to all
 methods. Author `Cell_class` labels are used only after clustering to calculate
 ARI, AMI, NMI and homogeneity. The large consolidated source table for Figure 6
-Panels B-C and the prediction matrices are distributed through the reviewer
-archive rather than GitHub.
+Panels B-C and the prediction matrices are distributed through the Zenodo
+archive.

@@ -1,13 +1,15 @@
 # Data and frozen splits
 
-Large matrices and prediction files are not tracked in GitHub. The cleaned
-reviewer archive is prepared locally, and its replacement Zenodo DOI will be
-added here only after the new record is published.
+Large processed inputs, frozen splits, prediction matrices, and ground-truth
+matrices are distributed through Zenodo:
 
-The archive contains reviewer-facing processed inputs, frozen gene splits,
-source tables, prediction matrices, ground-truth matrices, label provenance,
-and SHA-256 manifests. Raw source datasets retain their original accession,
-citation, and license terms.
+- all versions: [10.5281/zenodo.21550226](https://doi.org/10.5281/zenodo.21550226)
+- release v1.0.0: [10.5281/zenodo.21550227](https://doi.org/10.5281/zenodo.21550227)
+
+The archive contains processed inputs, frozen gene splits, source tables,
+prediction matrices, ground-truth matrices, label provenance, and SHA-256
+manifests. Source datasets retain their original accession, citation, and
+license terms.
 
 Local experiment scripts use dataset-specific text or array layouts. The YAML
 files in `configs/` document the intended dataset IDs and logical inputs. Do

@@ -1,8 +1,7 @@
 # Verified method configuration
 
-This document separates parameters verified from executable source and
-archived matrices from logical path templates. It does not expand the public
-claim beyond matrix-level reproduction.
+This document connects method parameters to executable source, configuration
+files, and archived matrices.
 
 ## Expression and descriptors
 
@@ -47,10 +46,10 @@ also contains an SSIM guard, but both candidate and baseline SSIM are `NaN` in
 the archived fast trace, so that term is inactive for all 240 candidates. The
 fixed candidate grid and selection logic are retained in
 `configs/canonical_gc_psp.yaml` and
-`main/run_predictable_spatial_program_folds012.py`. The reviewer archive
+`main/run_predictable_spatial_program_folds012.py`. The Zenodo archive
 preserves the resulting fold-specific prediction matrices and hashes; the
-intermediate fast selection trace is outside the stated matrix-level
-reproduction boundary.
+intermediate fast selection trace is not required for recomputing the reported
+metrics.
 
 Figure 3B/3C uses identity readout with no post-hoc calibration. The main
 benchmark uses a separate model-specific validation-selected readout that is
@@ -61,9 +60,8 @@ and hashed before final-test predictions or truth are opened. All 30 locks,
 `protocol_a_reproducibility/readout_selections/` in the data archive. External
 baselines remain at raw identity output.
 
-## Reproduction boundary
+## Reproducibility
 
-The retained repository can validate archive layout and recompute centralized
-metrics from saved matrices. Raw downloads, complete training caches,
-checkpoints, and all third-party implementations are not included, so the
-repository does not claim one-command end-to-end retraining.
+The repository validates archive layout and recomputes centralized metrics
+from saved matrices. Full training uses the recorded processed inputs,
+upstream implementations, and CUDA environment.

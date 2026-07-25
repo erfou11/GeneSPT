@@ -39,7 +39,7 @@ normal as long as the container CUDA runtime and PyTorch build stay compatible.
 
 Docker Python is the documented source of truth for the pinned manuscript
 environment. The default Compose service deliberately does not reserve a GPU,
-which keeps the no-data smoke check runnable on CPU-only reviewer machines.
+which keeps the no-data smoke check runnable on CPU-only systems.
 Matrix-level archive verification is also CPU-only but requires the extracted
 data archive. GPU-backed training requires a host with NVIDIA Container Toolkit and
 an explicit local GPU reservation; it is outside the no-data smoke contract.

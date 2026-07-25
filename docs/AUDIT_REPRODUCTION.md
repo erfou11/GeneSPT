@@ -1,15 +1,15 @@
-# Reviewer audit and metric reproduction
+# Archive verification and metric reproduction
 
-The public audit path operates on frozen evaluator-ready matrices. It does not
-train a model, require the private workbench, or modify an extracted archive.
+The verification workflow operates on frozen evaluator-ready matrices and
+does not modify the extracted archive.
 
-## Formal benchmark audit
+## Benchmark verification
 
-Run the fail-closed archive verifier first:
+Run the archive verifier first:
 
 ```bash
 python scripts/reproducibility/verify_protocol_a_release.py \
-  --archive-root ../GeneSPT_reviewer_archive
+  --archive-root ../GeneSPT_archive
 ```
 
 The verifier requires:
@@ -22,14 +22,14 @@ The verifier requires:
 - complete finite predictions with no formal fallback; and
 - matching SHA256 commitments for arrays, indices and public selection locks.
 
-It also rejects unexpected methods, missing coverage, workstation paths and
-stale method labels in the reviewer-facing Protocol A tree.
+It also checks the method set, fold coverage, repository-relative paths, and
+method labels.
 
 Recompute all four metrics and benchmark ranks with:
 
 ```bash
 python scripts/reproducibility/recompute_protocol_a_benchmark.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_protocol_a
 ```
 
@@ -76,7 +76,7 @@ Recompute all 90 mechanism rows and verify them against S3 with:
 
 ```bash
 python scripts/reproducibility/recompute_protocol_a_mechanism.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_figure3
 ```
 

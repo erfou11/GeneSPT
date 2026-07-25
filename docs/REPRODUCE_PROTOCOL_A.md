@@ -1,19 +1,19 @@
 # Reproduce the formal Protocol A benchmark
 
-## Reviewer quickstart: saved matrices
+## Recompute saved-matrix results
 
 After extracting the data archive next to this repository, run:
 
 ```bash
 python scripts/reproducibility/verify_protocol_a_release.py \
-  --archive-root ../GeneSPT_reviewer_archive
+  --archive-root ../GeneSPT_archive
 
 python scripts/reproducibility/recompute_protocol_a_benchmark.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_protocol_a
 
 python scripts/reproducibility/recompute_protocol_a_mechanism.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_figure3
 ```
 
@@ -36,9 +36,9 @@ Use `--save-gene-level` only when the large per-gene table is needed.
 
 ## Formal training commands
 
-The following commands are the retained formal entry points. They require the
+The following commands are the benchmark training entry points. They require the
 processed inputs, frozen splits, recorded third-party revisions and a CUDA
-environment. They are not part of the no-data smoke test.
+environment.
 
 ```bash
 python scripts/protocol_a_full/prepare_protocol_a_inputs.py
@@ -93,6 +93,6 @@ external baselines remain at raw identity output.
 | How was GeneSPT readout selected? | `manifests/protocol_a/READOUT_SELECTION_MANIFEST.csv` and archive `protocol_a_reproducibility/readout_selections/` |
 | Can the metrics be independently recomputed? | `recompute_protocol_a_benchmark.py` and `recompute_protocol_a_mechanism.py` |
 
-The repository does not claim one-command end-to-end retraining of every
-third-party method. It does provide one-command verification and metric
-recomputation from the frozen formal matrices.
+The verification and recomputation commands operate directly on the frozen
+matrices. Full baseline training uses the pinned upstream implementations and
+adapters listed above.

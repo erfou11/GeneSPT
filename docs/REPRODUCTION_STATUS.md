@@ -20,12 +20,11 @@
 - all 30 readout locks and 60 candidate tables for GeneSPT/GeneSPT-GC;
 - source data for Supplementary Tables S1-S3 and Figures 2-6.
 
-## Not claimed
+## Full training requirements
 
-The lightweight reviewer command does not retrain GeneSPT or third-party
-baselines. Full retraining requires the recorded upstream repositories,
-processed inputs, CUDA environment and compute budget. Raw public-source
-downloads and large checkpoints are not stored in GitHub.
+Metric recomputation uses the archived prediction and truth matrices. Full
+model training requires the recorded upstream repositories, processed inputs,
+CUDA environment, and compute budget.
 
 See `docs/REPRODUCE_PROTOCOL_A.md` for executable commands and
 `docs/BASELINE_ADAPTATION.md` for baseline fairness details.

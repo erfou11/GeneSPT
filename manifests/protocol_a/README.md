@@ -2,9 +2,9 @@
 
 This directory mirrors the lightweight manifests stored in the data archive:
 
-- `FORMAL_BASELINE_RUN_MANIFEST.csv`: the original 150 scheduler-managed
+- `FORMAL_BASELINE_RUN_MANIFEST.csv`: 150 scheduler-managed
   external-method tasks.
-- `STAI_FORMAL_ADOPTION_MANIFEST.json`: 30 audited stAI dataset-fold outputs,
+- `STAI_FORMAL_ADOPTION_MANIFEST.json`: 30 stAI dataset-fold outputs,
   their raw prediction hashes, frozen test axes and centralized metric hashes.
 - `INPUT_SPLIT_MANIFEST.csv`: 30 dataset-fold input and split contracts.
 - `PREDICTION_MATRIX_MANIFEST.csv`: compact benchmark prediction matrices in
@@ -18,5 +18,5 @@ This directory mirrors the lightweight manifests stored in the data archive:
 - `DATASET_AUDIT_MANIFEST.csv`: dataset dimensions, formal method set and
   matrix counts.
 
-All paths are archive- or repository-relative. Large arrays are stored only in
-the data archive and are intentionally not tracked by Git.
+All paths are archive- or repository-relative. Large arrays are distributed
+through the Zenodo data archive.

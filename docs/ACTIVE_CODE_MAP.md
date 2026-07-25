@@ -1,7 +1,6 @@
-# Active code map
+# Code map
 
-This repository contains one reviewer-facing implementation path for the
-formal Protocol A results.
+The benchmark implementation is organized around the following entry points.
 
 ## Formal execution
 
@@ -20,9 +19,9 @@ The authoritative metric implementation is `src/genespt/metrics.py`.
 
 ## Figures and source data
 
-The current Figure 2-6 generators are the five
-`scripts/protocol_a_full/generate_protocol_a_figure*.py` files. Reviewer-facing
-source tables are assembled by
+The Figure 2-6 generators are the five
+`scripts/protocol_a_full/generate_protocol_a_figure*.py` files. Source tables
+are assembled by
 `scripts/protocol_a_full/build_reviewer_source_data.py`.
 
 ## Archive verification
@@ -36,6 +35,3 @@ All public archive operations are under `scripts/reproducibility/`:
 - the two export scripts build compact benchmark and mechanism matrices without
   modifying the formal run.
 - `regenerate_release_metadata.py` creates package structure and SHA256 files.
-
-Exploratory queues, superseded plotters and pre-Protocol-A result collectors
-are not part of the reviewer repository.

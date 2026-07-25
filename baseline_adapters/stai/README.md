@@ -2,8 +2,7 @@
 
 `run_stai_protocol_a.py` is the exact three-stage wrapper used to add stAI to
 the formal seven-method benchmark. It imports the official stAI model at commit
-`3376cc16cc6d8461edafc0aeb4519b92d18474b7`; the upstream repository is not
-vendored here.
+`3376cc16cc6d8461edafc0aeb4519b92d18474b7`.
 
 ```bash
 git clone https://github.com/gszou99/stAI.git ../stAI
@@ -14,7 +13,7 @@ The reported run used 500 epochs, five internal models, `topk=50`,
 `spatial_knn=10`, seed 8848, and the model/loss defaults recorded in
 `configs/protocol_a_baseline_versions.yaml`.
 
-Set `GENESPT_ARCHIVE_ROOT` to the extracted reviewer archive and
+Set `GENESPT_ARCHIVE_ROOT` to the extracted Zenodo archive and
 `GENESPT_PROTOCOL_INPUT_ROOT` to the directory containing the frozen
 `mode_a_split.json` and `full_truth.npy` files. Set `STAI_ROOT` when the
 official checkout is not adjacent to this repository. The six optional

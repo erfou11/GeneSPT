@@ -17,15 +17,14 @@ external method on training genes only, use train-gene library sizes for ST
 normalization, save complete final-test predictions, and defer every reported
 metric to the centralized evaluator.
 
-Third-party repositories are not vendored here. Exact upstream revisions,
-runtime parameters, protocol adaptations and failure rules are recorded in
+The adapters target the exact upstream revisions recorded in
 `configs/protocol_a_baseline_versions.yaml` and
-`docs/BASELINE_ADAPTATION.md`. The small patches under `patches/` are relative
-to those upstream revisions and make every local runtime change inspectable.
+`docs/BASELINE_ADAPTATION.md`. Runtime parameters, protocol adaptations, and
+failure rules are documented alongside them. The patches under `patches/` are
+relative to those upstream revisions.
 stAI uses the official source without an upstream patch; its three-stage
 wrapper is documented in `stai/README.md`.
 
-These adapters are training entry points, not the lightweight reviewer
-quickstart. Matrix-level reproduction uses
+These adapters are training entry points. Matrix-level reproduction uses
 `scripts/reproducibility/recompute_protocol_a_benchmark.py` with the extracted
 data archive.

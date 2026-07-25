@@ -1,9 +1,11 @@
 # GeneSPT
 
-Reviewer-facing source repository for:
+Official implementation and reproducibility materials for:
 
 **GeneSPT: Gene-Conditioned Decoding and Predictable Spatial Program Transfer
 for Unmeasured Gene Expression Prediction in Spatial Transcriptomics**
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21550226.svg)](https://doi.org/10.5281/zenodo.21550226)
 
 GeneSPT evaluates unmeasured-gene prediction under strict whole-gene holdout.
 The model combines:
@@ -11,28 +13,28 @@ The model combines:
 1. scRNA-derived target-gene descriptors;
 2. a shared gene-conditioned decoder (GeneSPT-GC);
 3. Predictable Spatial Program Transfer (PSP), which predicts gene-specific
-   coefficients for spatial programs estimated from training-gene ST maps;
-4. a validation-selected model readout locked before final-test evaluation; and
-5. a centralized evaluator for SPCC, RMSE, JS/JSD, and SSIM.
+   coefficients for spatial programs estimated from training-gene ST maps.
 
-## Repository Scope
+Model selection uses validation genes and is fixed before final-test
+evaluation. SPCC, RMSE, JS/JSD, and SSIM are computed by one centralized
+evaluator.
 
-This checkout is anchored to the completed formal Protocol A workbench. Active
-method and figure code is under `main/` and `scripts/`.
-Superseded model routes, mistaken configurations, historical results, raw
-data, prediction matrices, and checkpoints are intentionally not tracked.
+## Repository Contents
 
-Large reviewer-facing data and result artifacts are prepared as a separate
-archive. A replacement Zenodo DOI will be added after the new record is
-published; this repository does not currently claim an active archive DOI.
+This repository contains the GeneSPT implementation, benchmark workflows,
+baseline adapters, frozen configuration manifests, figure scripts, and
+lightweight source tables. Large processed inputs, frozen splits, prediction
+matrices, ground-truth matrices, and complete figure source data are available
+from Zenodo:
 
-GitHub does not contain raw or processed expression matrices.
+- all versions: [10.5281/zenodo.21550226](https://doi.org/10.5281/zenodo.21550226)
+- release v1.0.0: [10.5281/zenodo.21550227](https://doi.org/10.5281/zenodo.21550227)
 
 ## Layout
 
 ```text
 main/               GeneSPT and PSP implementation modules used by Protocol A
-scripts/protocol_a_full/  Formal schedulers, evaluators, controls, and Figures 2-6
+scripts/protocol_a_full/  Benchmark schedulers, evaluators, controls, and Figures 2-6
 scripts/reproducibility/  Archive export, verification, and matrix recomputation
 src/genespt/        Lightweight public I/O and metric helpers
 configs/            Dataset configuration templates
@@ -95,9 +97,9 @@ selection. Test-gene ST expression is reserved for final evaluation only.
 scRNA-derived descriptors are external gene-identity inputs and do not contain
 test-gene ST spatial expression.
 
-## Formal Experiment Entry Point
+## Benchmark Entry Point
 
-The retained formal GeneSPT/GeneSPT-GC scheduler is:
+The GeneSPT/GeneSPT-GC benchmark scheduler is:
 
 ```bash
 python scripts/protocol_a_full/run_protocol_a_genespt.py --run --resume
@@ -109,7 +111,7 @@ data requirements are documented in `docs/REPRODUCE_PROTOCOL_A.md`.
 
 ## Evaluation
 
-The authoritative public complete-set evaluator is:
+The centralized evaluator is:
 
 - `src/genespt/metrics.py`
 
@@ -119,17 +121,17 @@ The no-data metric smoke test is:
 python tests/smoke_test.py
 ```
 
-The complete formal benchmark has a separate fail-closed verifier and
-centralized matrix-level recomputation:
+The release includes archive verification and centralized matrix-level
+recomputation:
 
 ```bash
 python scripts/reproducibility/verify_protocol_a_release.py \
-  --archive-root ../GeneSPT_reviewer_archive
+  --archive-root ../GeneSPT_archive
 python scripts/reproducibility/recompute_protocol_a_benchmark.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_protocol_a
 python scripts/reproducibility/recompute_protocol_a_mechanism.py \
-  --archive-root ../GeneSPT_reviewer_archive \
+  --archive-root ../GeneSPT_archive \
   --output-dir results/recomputed_figure3
 ```
 
@@ -137,11 +139,10 @@ The directory name above is an example extraction location adjacent to the
 repository. Every reported required or missing path is relative to the
 extracted archive root.
 
-See `docs/metric_policy.md` for edge-case eligibility,
-`docs/REPRODUCE_PROTOCOL_A.md` for the formal benchmark, and
-`docs/AUDIT_REPRODUCTION.md` for the matrix-level audit. The complete active
-entry-point map is in `docs/ACTIVE_CODE_MAP.md`. Public audits call the
-centralized evaluator instead of copying formulas.
+See `docs/metric_policy.md` for metric eligibility,
+`docs/REPRODUCE_PROTOCOL_A.md` for the benchmark workflow, and
+`docs/AUDIT_REPRODUCTION.md` for matrix-level verification. The entry-point
+map is in `docs/ACTIVE_CODE_MAP.md`.
 
 Saved prediction matrices must retain dataset ID, fold ID, method, spot IDs,
 test-gene indices, and gene identifiers. See `docs/OUTPUT_SCHEMA.md`.
@@ -154,31 +155,24 @@ test-gene indices, and gene identifiers. See `docs/OUTPUT_SCHEMA.md`.
 - Figure 5 and Supplementary Table S2: `scripts/protocol_a_full/generate_protocol_a_figure5_s2.py`
 - Figure 6: `scripts/protocol_a_full/generate_protocol_a_figure6.py`
 
-## Reproduction Boundary
+## Reproducibility
 
-With the Zenodo archive, this repository supports **matrix-level
-reproduction**: validating the archive layout and recomputing centralized
-metrics from archived ground-truth, prediction, and frozen-split files. This
-does not retrain a model or recreate the archived prediction matrices.
-
-The repository does **not** claim one-command full-method retraining. Raw
-downloads, training caches/checkpoints, and complete third-party baseline
-repositories are not included. The exact six adapters, upstream revisions,
-runtime patches or wrappers, parameters and 180 task records are included. Figure 3
-matrix-level verification is supported by 90 identity-readout mechanism
-matrices; retraining those controls additionally needs the canonical frozen GC
-cache described above. See
-`docs/REPRODUCTION_STATUS.md` and `docs/REPRODUCE_MANUSCRIPT.md` for the exact
-boundary.
+The repository and Zenodo archive support archive validation, centralized
+metric recomputation, and regeneration of the reported figures and
+supplementary tables from saved matrices. Training entry points, parameters,
+six external-method adapters, upstream revisions, runtime patches, and task
+manifests are provided. Full training additionally requires the referenced
+upstream repositories, processed inputs, and CUDA environment. See
+`docs/REPRODUCTION_STATUS.md` and `docs/REPRODUCE_MANUSCRIPT.md`.
 
 ## External Baselines
 
 The manuscript compares GeneSPT with Tangram, TransImp, SpaIM, SpaGE, stPlus,
 and stAI using the same frozen whole-gene splits and centralized evaluator.
-Third-party repositories are not vendored here. See
-`docs/BASELINE_ADAPTATION.md` for the complete adaptation contract.
+Upstream versions and adaptations are documented in
+`docs/BASELINE_ADAPTATION.md`.
 
 ## Citation and License
 
-See `CITATION.cff`. The repository is distributed under the Apache-2.0
-license; data retain the terms of their original sources and the Zenodo record.
+See `CITATION.cff`. The code is distributed under the Apache-2.0 license.
+Data retain the terms of their original sources and the Zenodo record.

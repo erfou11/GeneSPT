@@ -1,9 +1,8 @@
 # Baseline methods
 
-The formal benchmark includes exactly six external methods: Tangram,
-TransImp, SpaIM, SpaGE, stPlus and stAI. No other external method is part of
-the reported Protocol A panel. Figure 6 retains the five methods used in its
-frozen downstream-analysis run and is not a second benchmark method list.
+The benchmark compares GeneSPT with six external methods: Tangram, TransImp,
+SpaIM, SpaGE, stPlus, and stAI. Figure 6 uses the five methods available in
+the completed downstream-analysis matrices.
 
 The exact adapters are under `baseline_adapters/`. Upstream revisions,
 parameters, runtime patches, information-boundary adaptations and failure
@@ -14,6 +13,5 @@ rules are documented in:
 - `manifests/protocol_a/FORMAL_BASELINE_RUN_MANIFEST.csv`
 
 All methods use the same frozen whole-gene splits and centralized evaluator.
-Full third-party repositories are not vendored; reviewers can either check out
-the recorded revisions for retraining or use the archived compact matrices for
-one-command metric reproduction.
+Full training uses the recorded upstream revisions. The archived compact
+matrices support direct metric recomputation.
