@@ -1,0 +1,150 @@
+{
+  "protocol_id": "protocol_a_figure6d_mhpr_all154_pca30_k15_weighted_louvain_v1",
+  "protocol_sha256": "0c27155627c070d4407f0b10cef768de5846d1e39abf6a309580a003e796a579",
+  "input_path_schema": "artifact IDs relative to the archive or repository root",
+  "archive_root_argument_required": true,
+  "software_versions": {
+    "numpy": "1.26.4",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.7.2",
+    "igraph": "1.0.0"
+  },
+  "igraph_rng": {
+    "generator": "random.Random via igraph.set_random_number_generator",
+    "seed": 0,
+    "reset_before_each_clustering": true
+  },
+  "outputs": {
+    "protocol_a_figure6d_mhpr_all154_fold_metrics.csv": {
+      "sha256": "bcfd8b9b622cec90983f70f66a091e50e1a5d25fe32aad6f338313ae6406f2be",
+      "bytes": 9694
+    },
+    "protocol_a_figure6d_mhpr_all154_summary.csv": {
+      "sha256": "fc0198a7ed610ea8f764818e4b156af096d0ac81cf0f5635578b8cef3958b8f2",
+      "bytes": 2150
+    },
+    "protocol_a_figure6d_mhpr_all154_test_gene_participation.csv": {
+      "sha256": "91c57de48dd533e2c736c0a070533f981cefe6168ef893855f23aef74a90b48d",
+      "bytes": 2768
+    },
+    "protocol_a_figure6d_mhpr_all154_input_hashes.csv": {
+      "sha256": "51858e52f5202f31af99bddfede170f9d3f90ed3b83f369e4425dac72c238b30",
+      "bytes": 20787
+    },
+    "protocol_a_figure6d_mhpr_all154_repeatability_check.json": {
+      "sha256": "3ea6213424f5870a8218a2a8c0ee1b836782a5996fe60659c85058bf1dda7a06",
+      "bytes": 1541
+    }
+  },
+  "checks": {
+    "expected_fold_method_rows": 35,
+    "observed_fold_method_rows": 35,
+    "methods": [
+      "GeneSPT",
+      "Tangram",
+      "TransImp",
+      "SpaIM",
+      "SpaGE",
+      "stPlus",
+      "stAI"
+    ],
+    "folds_per_method": {
+      "GeneSPT": 5,
+      "Tangram": 5,
+      "TransImp": 5,
+      "SpaIM": 5,
+      "SpaGE": 5,
+      "stPlus": 5,
+      "stAI": 5
+    },
+    "all_metrics_finite": true,
+    "common_configuration_all_methods": true,
+    "all_154_genes_enter_preprocessing": true,
+    "measured_train_and_validation_columns_retained": true,
+    "only_test_columns_replaced_by_predictions": true,
+    "author_labels_used_for_parameter_selection": false,
+    "author_labels_used_after_clustering_for_metrics_only": true,
+    "predicted_test_gene_participation_by_fold": {
+      "fold0": {
+        "GeneSPT": 31,
+        "Tangram": 31,
+        "TransImp": 31,
+        "SpaIM": 31,
+        "SpaGE": 31,
+        "stPlus": 31,
+        "stAI": 31
+      },
+      "fold1": {
+        "GeneSPT": 31,
+        "Tangram": 31,
+        "TransImp": 31,
+        "SpaIM": 31,
+        "SpaGE": 31,
+        "stPlus": 31,
+        "stAI": 31
+      },
+      "fold2": {
+        "GeneSPT": 31,
+        "Tangram": 31,
+        "TransImp": 31,
+        "SpaIM": 31,
+        "SpaGE": 31,
+        "stPlus": 31,
+        "stAI": 31
+      },
+      "fold3": {
+        "GeneSPT": 31,
+        "Tangram": 31,
+        "TransImp": 31,
+        "SpaIM": 31,
+        "SpaGE": 31,
+        "stPlus": 31,
+        "stAI": 31
+      },
+      "fold4": {
+        "GeneSPT": 30,
+        "Tangram": 30,
+        "TransImp": 30,
+        "SpaIM": 30,
+        "SpaGE": 30,
+        "stPlus": 30,
+        "stAI": 30
+      }
+    },
+    "repeatability": {
+      "status": "passed",
+      "comparison": "exact numeric, nonnumeric, and serialized CSV equality",
+      "reference_output": "archive/_qa/stai_full_sync_20260723/figure6d_staging",
+      "current_output": "archive/_qa/stai_full_sync_20260723/figure6d_repeat",
+      "files": {
+        "protocol_a_figure6d_mhpr_all154_fold_metrics.csv": {
+          "columns_equal": true,
+          "shape_equal": true,
+          "numeric_values_exactly_equal": true,
+          "nonnumeric_values_equal": true,
+          "file_sha256_equal": true,
+          "reference_sha256": "bcfd8b9b622cec90983f70f66a091e50e1a5d25fe32aad6f338313ae6406f2be",
+          "current_sha256": "bcfd8b9b622cec90983f70f66a091e50e1a5d25fe32aad6f338313ae6406f2be"
+        },
+        "protocol_a_figure6d_mhpr_all154_summary.csv": {
+          "columns_equal": true,
+          "shape_equal": true,
+          "numeric_values_exactly_equal": true,
+          "nonnumeric_values_equal": true,
+          "file_sha256_equal": true,
+          "reference_sha256": "fc0198a7ed610ea8f764818e4b156af096d0ac81cf0f5635578b8cef3958b8f2",
+          "current_sha256": "fc0198a7ed610ea8f764818e4b156af096d0ac81cf0f5635578b8cef3958b8f2"
+        },
+        "protocol_a_figure6d_mhpr_all154_test_gene_participation.csv": {
+          "columns_equal": true,
+          "shape_equal": true,
+          "numeric_values_exactly_equal": true,
+          "nonnumeric_values_equal": true,
+          "file_sha256_equal": true,
+          "reference_sha256": "91c57de48dd533e2c736c0a070533f981cefe6168ef893855f23aef74a90b48d",
+          "current_sha256": "91c57de48dd533e2c736c0a070533f981cefe6168ef893855f23aef74a90b48d"
+        }
+      }
+    }
+  }
+}

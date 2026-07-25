@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "artifact": "source.csv",
+  "rows": 32,
+  "sha256": "dcd353256460376169ee954f93faa439097d5c00ecaccba9726211d65e1cf3f4",
+  "layout": {
+    "rows": 4,
+    "columns": 8
+  },
+  "methods": [
+    "Ground truth",
+    "GeneSPT",
+    "Tangram",
+    "TransImp",
+    "SpaIM",
+    "SpaGE",
+    "stPlus",
+    "stAI"
+  ],
+  "path_policy": "FORMAL_RUN_ROOT and ARCHIVE_ROOT placeholders only"
+}

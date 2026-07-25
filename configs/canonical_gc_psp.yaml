@@ -1,0 +1,76 @@
+configuration_id: canonical_matched_gc_psp_figure3
+scope: matched Figure 3B/3C mechanism analysis
+seed_base: 42
+
+preprocessing:
+  expression: log1p_cpm
+  target_sum: 10000
+
+gene_descriptor:
+  gc: pca32
+  psp: pca32_nmf32
+  pca_implementation: sklearn.decomposition.TruncatedSVD
+  pca_components: 32
+  nmf_implementation: sklearn.decomposition.MiniBatchNMF
+  nmf_components: 32
+  nmf_init: nndsvda
+  nmf_max_iter: 250
+  nmf_batch_size: 512
+
+gene_conditioned_decoder:
+  spot_encoder: [layer_norm, linear_256, gelu, linear_128, layer_norm]
+  spot_projection_dim: 96
+  gene_projection: [layer_norm, linear_96, gelu]
+  decoder: [linear_192, gelu, linear_64, gelu, linear_1]
+  output_activation: softplus
+  loss: mean_squared_error
+  optimizer: AdamW
+  learning_rate: 0.002
+  weight_decay: 0.0001
+  gradient_clip_norm: 5.0
+  steps: 800
+  batch_size: 65536
+  validation_interval_steps: 100
+
+psp:
+  decomposition: raw_log1p_cpm_truncated_svd
+  rank: 64
+  coefficient_predictor: ridge
+  coefficient_ridge_alpha: 10.0
+  retained_components: 32
+  component_ranking: validation_component_spearman_times_log1p_oracle_variance
+  spatiality_target: training_gene_morans_i
+  spatiality_graph_knn: 8
+  spatiality_predictor: descriptor_ridge
+  spatiality_ridge_alpha: 1.0
+
+fusion:
+  test_bin_assignment: descriptor_predicted_spatiality_only
+  validation_quantiles: [0.3333333333333333, 0.6666666666666666]
+  lambda_low: [0.0, 0.1, 0.25]
+  lambda_mid: [0.0, 0.1, 0.25, 0.5]
+  lambda_high: [0.25, 0.5, 0.75, 1.0]
+  candidate_triples: 48
+  traversal_order: [lambda_low, lambda_mid, lambda_high]
+  tie_rule: first_candidate_in_fixed_traversal
+  validation_score_code: >-
+    nan_to_num(Pearson_all,nan=-1.0)
+    + 0.6*nan_to_num(Pearson_high_spatial,nan=-1.0)
+    - 0.04*nan_to_num(RMSE,nan=10.0)
+    - 0.04*nan_to_num(JSD,nan=10.0,posinf=10.0)
+    - 0.2*max(0.0,base_SSIM-candidate_SSIM)
+  archived_trace_score: >-
+    Pearson_all + 0.6*Pearson_high_spatial - 0.04*RMSE - 0.04*JSD
+  archived_trace_note: >-
+    Candidate and base SSIM are NaN in the fast validation trace, so the
+    implemented SSIM penalty is inactive for all 240 archived candidates.
+  selection_correlation: Pearson
+  final_evaluation_correlation: Spearman
+
+mechanism_readout:
+  type: identity
+  posthoc_calibration: none
+
+evaluation:
+  implementation: src/genespt/metrics.py
+  aggregation: per_gene_metric_then_fold_median_then_mean_of_five_fold_medians

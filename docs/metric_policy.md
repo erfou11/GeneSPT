@@ -45,10 +45,10 @@ compatibility.
 
 ## Reproducible audit entry points
 
-`scripts/audit_complete_set_metrics.py` applies this evaluator to one fixed
-truth matrix and multiple aligned methods. It verifies that truth-derived
-eligibility columns are identical between methods and records input checksums.
+`scripts/reproducibility/recompute_protocol_a_benchmark.py` applies this
+evaluator to all 210 formal benchmark matrices and verifies the fold metrics
+against the frozen source table.
 
-`scripts/compare_cell2location_strict_psp.py` adds the paired PSP provenance
-checks described in `docs/AUDIT_REPRODUCTION.md`. It does not relax this metric
-policy or filter genes separately by method.
+`scripts/reproducibility/recompute_protocol_a_mechanism.py` applies the same
+policy to all 90 Figure 3 mechanism matrices. Neither entry point relaxes the
+metric policy or filters genes separately by method.

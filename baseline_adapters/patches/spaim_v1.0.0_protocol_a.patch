@@ -1,0 +1,100 @@
+--- a/dataset.py
++++ b/dataset.py
+@@ -99,10 +99,11 @@
+ 
+     def load_data(self, root): # 数值过滤和取对数归一化操作
+         adata = sc.read(root) # adata 是 Scanpy 中的 AnnData 对象，用于存储和处理单细胞数据。
+-        sc.pp.filter_genes(adata, min_cells=3) 
+-        # 使用 scanpy 中的 filter_genes 函数，过滤掉在数据集中表达的细胞数量低于3的基因。
+-        # 这有助于去除在很少的细胞中表达的基因，以减少噪音和提高数据的质量。
+-        sc.pp.filter_cells(adata, min_genes=3) # 基因数量低于3
++        if os.environ.get("SPAIM_DISABLE_NATIVE_FILTERING", "0") != "1":
++            sc.pp.filter_genes(adata, min_cells=3) 
++            # 使用 scanpy 中的 filter_genes 函数，过滤掉在数据集中表达的细胞数量低于3的基因。
++            # 这有助于去除在很少的细胞中表达的基因，以减少噪音和提高数据的质量。
++            sc.pp.filter_cells(adata, min_genes=3) # 基因数量低于3
+         sc.pp.log1p(adata)  # 对数据进行logarithm加一操作，即对数据中的每个元素 x，计算 log(1 + x)。
+ 
+         # some of the data has negative values
+@@ -232,8 +233,9 @@
+ 
+     def load_data(self, root):
+         adata = sc.read(root)
+-        sc.pp.filter_genes(adata, min_cells=3)
+-        sc.pp.filter_cells(adata, min_genes=3)
++        if os.environ.get("SPAIM_DISABLE_NATIVE_FILTERING", "0") != "1":
++            sc.pp.filter_genes(adata, min_cells=3)
++            sc.pp.filter_cells(adata, min_genes=3)
+         # sc.pp.normalize_total(adata)
+         if not "log1p" in adata.uns_keys():
+             sc.pp.log1p(adata)
+@@ -258,4 +260,3 @@
+             print("Error in spx")
+             seq_x = self.seq_test.X[index, ...]
+             return torch.FloatTensor(seq_x), st_style
+-
+--- a/main.py
++++ b/main.py
+@@ -42,12 +42,12 @@
+                 'st_style': st_style,
+                 'sc_cls': seq_cls
+             }
+-        model.set_input(inputs, istrain=0)
+-        out = model.inference()
+-        impute_result = out['st_fake'].detach().cpu().numpy()
++            model.set_input(inputs, istrain=0)
++            out = model.inference()
++            impute_result = out['st_fake'].detach().cpu().numpy()
+ 
+-        eval_result = impute_result if eval_result is None else np.concatenate((eval_result, impute_result), axis=0)
+-        input_result = spa.detach().cpu().numpy() if input_result is None else np.concatenate((input_result, spa.detach().cpu().numpy()), axis=0)
++            eval_result = impute_result if eval_result is None else np.concatenate((eval_result, impute_result), axis=0)
++            input_result = spa.detach().cpu().numpy() if input_result is None else np.concatenate((input_result, spa.detach().cpu().numpy()), axis=0)
+ 
+     eval_result = eval_result.T
+     eval_result[eval_result <0] = 0
+@@ -59,9 +59,12 @@
+     df2 = pd.DataFrame(input_result, index=cell_names, columns=gene_names)
+     df2.to_pickle(os.path.join(opt.save_path, 'input_result_%d.pkl'%(opt.kfold)))
+ 
+-    evaluate = CalculateMeteics(df2, df1, opt.save_path, 'None', 'SpaImputation')
+-    acc = evaluate.compute_all(opt.kfold)
+-    print('PCC = ', acc.T['PCC'].mean())
++    if os.environ.get("SPAIM_SKIP_NATIVE_METRICS", "0") != "1":
++        evaluate = CalculateMeteics(df2, df1, opt.save_path, 'None', 'SpaImputation')
++        acc = evaluate.compute_all(opt.kfold)
++        print('PCC = ', acc.T['PCC'].mean())
++    else:
++        print('PCC = skipped (SPAIM_SKIP_NATIVE_METRICS=1)')
+ 
+ def Data_augmentation(data1, data2, data3, times=2, zero_fraction=0.1):
+     """
+@@ -153,4 +156,4 @@
+     else:
+         val(opt)
+ 
+-    torch.cuda.empty_cache()+    torch.cuda.empty_cache()
+--- a/options.py
++++ b/options.py
+@@ -29,14 +29,17 @@
+         self.opt = self.parser.parse_args()
+         self.opt.seq_data = os.path.join(self.opt.root, self.opt.dataset_name, 'scRNA_count_cluster.h5ad')
+         self.opt.spa_data = os.path.join(self.opt.root, self.opt.dataset_name, 'Insitu_count.h5ad')
++        disable_filtering = os.environ.get("SPAIM_DISABLE_NATIVE_FILTERING", "0") == "1"
+ 
+         adata = sc.read(self.opt.seq_data)
+-        sc.pp.filter_genes(adata, min_cells=3)
+-        sc.pp.filter_cells(adata, min_genes=3)
++        if not disable_filtering:
++            sc.pp.filter_genes(adata, min_cells=3)
++            sc.pp.filter_cells(adata, min_genes=3)
+ 
+         adata = sc.read(self.opt.spa_data)
+-        sc.pp.filter_genes(adata, min_cells=3)
+-        sc.pp.filter_cells(adata, min_genes=3)
++        if not disable_filtering:
++            sc.pp.filter_genes(adata, min_cells=3)
++            sc.pp.filter_cells(adata, min_genes=3)
+         self.opt.st_dim = adata.shape[0]
+ 
+         self.opt.save_path = os.path.join(self.opt.save_path, self.opt.dataset_name)

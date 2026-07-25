@@ -1,0 +1,20 @@
+* text=auto
+
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.cff text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.sh text eol=lf
+*.patch text eol=lf whitespace=-trailing-space
+configs/downstream_mhpr_completed_matrix_louvain.yaml whitespace=-blank-at-eof
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.npz binary
+*.npy binary

@@ -1,0 +1,180 @@
+protocol_id: protocol_a_figure6d_mhpr_all154_pca30_k15_weighted_louvain_v1
+status: fixed_protocol_a_primary_downstream_analysis
+
+dataset:
+  id: MHPR_current_panel
+  label: MHPR/MERFISH
+  expected_gene_count: 154
+  truth_path: GeneSPT/results/protocol_a_full_rerun_20260711/inputs/MHPR_current_panel/fold{fold}/full_truth.npy
+  gene_names_path: zenodo_upload/GeneSPT_reviewer_archive_20260713/ground_truth/MHPR_current_panel/gene_names.txt
+  label_path: zenodo_upload/GeneSPT_reviewer_archive_20260713/label_provenance/matched_labels/mhpr_current_panel_matched_original_merfish_labels.csv
+  label_column: Cell_class
+  matrix_row_column: matrix_row
+  split_root: zenodo_upload/GeneSPT_reviewer_archive_20260713/frozen_splits/cross_platform/MHPR_current_panel/gene_index_masks
+
+methods:
+  - name: GeneSPT
+    result_layer: validation_selected_readout_genespt57
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/evaluation/validation_selected_readout_genespt57/test_predictions/{dataset_id}/fold{fold}/GeneSPT.npz
+      format: npz
+      array_key: prediction
+      gene_axis: test_gene_axis
+      test_index_key: test_gene_idx
+    audit:
+      kind: validation_selected_readout
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/evaluation/validation_selected_readout_genespt57/test_predictions/{dataset_id}/fold{fold}/apply_manifest.json
+
+  - name: Tangram
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: full_gene_axis
+    audit:
+      kind: protocol_a_baseline_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_matrix_sha256]
+      required_values:
+        - path: [prediction_finite]
+          equals: true
+        - path: [held_out_prediction_coverage, truth_copy_fallback_used]
+          equals: false
+
+  - name: TransImp
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: full_gene_axis
+    audit:
+      kind: protocol_a_baseline_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_sha256, imputed_expression.npy]
+      required_values:
+        - path: [truth_fallback]
+          equals: false
+
+  - name: SpaIM
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: full_gene_axis
+    audit:
+      kind: protocol_a_baseline_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_matrix_sha256]
+      required_values:
+        - path: [prediction_finite]
+          equals: true
+        - path: [complete_test_gene_coverage]
+          equals: true
+        - path: [truth_copy_fallback_used]
+          equals: false
+
+  - name: SpaGE
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: full_gene_axis
+    audit:
+      kind: protocol_a_baseline_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_sha256, imputed_expression.npy]
+      required_values:
+        - path: [imputed_finite]
+          equals: true
+        - path: [test_coverage_complete]
+          equals: true
+        - path: [fallback_used]
+          equals: false
+
+  - name: stPlus
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: full_gene_axis
+    audit:
+      kind: protocol_a_baseline_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_sha256, imputed_expression.npy]
+
+  - name: stAI
+    result_layer: raw_identity
+    prediction:
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/imputed_expression.npy
+      format: npy
+      gene_axis: test_gene_axis
+      test_index_path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/test_gene_axis.npz
+      test_index_key: test_gene_idx
+    audit:
+      kind: protocol_a_stai_raw_identity
+      path: GeneSPT/results/protocol_a_full_rerun_20260711/baselines/{method}/{dataset_id}/fold{fold}/adapter_run_audit.json
+      sha256_path: [output_matrix_sha256]
+      test_axis_sha256_path: [test_gene_axis_sha256]
+      required_values:
+        - path: [status]
+          equals: complete
+        - path: [pseudo_labels_used]
+          equals: false
+        - path: [test_st_truth_accessed_during_model_stage]
+          equals: false
+        - path: [validation_st_expression_used_during_model_stage]
+          equals: false
+        - path: [coverage]
+          equals: 1.0
+
+folds: [0, 1, 2, 3, 4]
+
+matrix_mode:
+  name: protocol_a_completed_outer_fold_matrix
+  measured_columns: outer train and validation genes
+  predicted_columns: outer test genes only
+  description: >-
+    For each frozen outer gene fold, retain measured Protocol A expression for
+    train and validation genes and insert only the corresponding method's
+    predictions for final held-out test genes.
+
+preprocessing:
+  input_scale: per-fold Protocol A normalized log1p expression
+  feature_policy: all_genes
+  drop_nonfinite_features: false
+  drop_zero_variance_features: false
+  standardize_features: true
+  standardization: per-gene zero mean and unit population standard deviation
+
+pca:
+  n_components: 30
+  svd_solver: randomized
+  random_state: 0
+
+neighbors:
+  n_neighbors: 15
+  metric: euclidean
+  edge_weight: exp_negative_squared_distance_over_median_distance
+
+clustering:
+  algorithm: igraph_multilevel_louvain
+  weighted: true
+  resolution: 1.0
+  rng_seed: 0
+  rng_generator: python_random_via_igraph_set_random_number_generator
+  reset_rng_before_each_clustering: true
+  method_specific_parameters: false
+
+label_usage:
+  source: original_author_Cell_class
+  parameter_selection: prohibited
+  role: post_clustering_metrics_only
+
+parameter_selection:
+  clustering_parameters: fixed_by_protocol
+  author_labels_used: false
+
+metrics: [ARI, AMI, NMI, homogeneity]
+aggregation: arithmetic mean and sample standard deviation across five frozen gene folds
+rank_scope: seven imputation methods
+output_prefix: protocol_a_figure6d_mhpr_all154

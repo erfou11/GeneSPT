@@ -1,37 +1,56 @@
-# Output Schema
+# Output schema
 
-Prediction matrices are stored outside GitHub.
+Large prediction matrices are stored in the data archive, not GitHub.
 
-## Prediction Matrix
+## Formal benchmark prediction
 
-- Rows: spots or cells in the spatial dataset.
-- Columns: held-out test genes unless explicitly stored as a full gene matrix.
-- Values: predicted nonnegative expression on the evaluator's expected scale.
+Each dataset, method and fold has:
 
-Recommended metadata:
+```text
+prediction_matrices/<dataset_id>/<method>/fold<fold>/
+  prediction.npz
+  test_gene_idx.npy
+  metadata.json
+```
 
-| field | meaning |
-| --- | --- |
-| `dataset_id` | internal dataset identifier |
-| `fold` | strict whole-gene fold |
-| `method` | method label, e.g. `GeneSPT` or `GeneSPT-GC` |
-| `test_gene_indices` | indices into the dataset gene list |
-| `test_gene_names` | gene symbols or IDs |
-| `spot_ids` | spatial spot/cell identifiers |
-| `checksum` | SHA256 checksum of the prediction file |
-| `readout` | quantitative readout applied to the saved prediction |
-| `posthoc_calibration` | post-hoc calibration, or `none` |
-| `base_prediction` | matched frozen GC prediction when the archive contains a PSP toggle |
+`prediction.npz` contains one float32 array named `prediction` with shape
+`spots x final_test_genes`. Rows follow the original ST spot/cell order.
+Columns follow `test_gene_idx.npy`, whose values index the dataset-wide
+`ground_truth/<dataset_id>/gene_names.txt` axis. The metadata records dataset,
+role, method, fold, result layer, shape, source-matrix SHA256, compact-matrix
+SHA256, truth SHA256, coverage and the frozen fold metrics.
 
-## Strict PSP labels
+GeneSPT rows use `validation_selected_readout_genespt57`. External methods use
+`raw_identity`. This field is mandatory and prevents output layers from being
+silently mixed.
 
-For the Cell2location matched toggle, `GeneSPT-GC` is reserved for the PSP-off
-`gc_mlp_base` prediction and `GeneSPT-GC+PSP` is reserved for the PSP-on
-`predictable_spatial_program_selected_correct` prediction. Both use the same
-GC base cache output, the same frozen split, identity readout, and no post-hoc
-calibration.
+## Fold-specific truth
 
-A legacy prediction that includes PSP must not be relabeled as `GeneSPT-GC` or
-otherwise treated as GC-only. The internal model field and saved prediction
-provenance take precedence over an ambiguous historical display label.
+Protocol A normalization depends on the inner-training gene set, so truth is
+also stored by fold:
 
+```text
+ground_truth_protocol_a/<dataset_id>/fold<fold>/
+  truth.npz
+  test_gene_idx.npy
+  metadata.json
+```
+
+`truth.npz` contains `truth`, aligned exactly to the prediction matrix. Its
+normalization is `log1p(CPM)` with the CPM denominator computed from inner-
+training genes only and applied to all columns. A single dataset-wide truth
+matrix must not be substituted for this fold-specific Protocol A truth.
+
+## Public manifests
+
+`PREDICTION_MATRIX_MANIFEST.csv` binds all 210 prediction files to their test
+indices, truth matrices, source hashes and reported fold metrics.
+`PROTOCOL_A_TRUTH_MATRIX_MANIFEST.csv` binds all 30 truth files. Paths are
+archive-relative and SHA256 verification is fail-closed.
+
+## Mechanism matrices
+
+Figure 3 mechanism controls are stored separately under
+`mechanism_ablation_prediction_matrices/` and indexed by
+`MECHANISM_ABLATION_MATRIX_MANIFEST.csv`. They use identity readout and must not
+be substituted with the main benchmark readout matrices.

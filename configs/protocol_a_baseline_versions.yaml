@@ -1,0 +1,140 @@
+schema_version: 1
+protocol: A
+resolved_on: "2026-07-12"
+common_contract:
+  folds: [0, 1, 2, 3, 4]
+  seed: 42
+  st_normalization: log1p_cpm
+  cpm_target_sum: 10000
+  cpm_denominator: inner_train_genes_only
+  fit_gene_scope: inner_train_genes_only
+  validation_gene_role: model_selection_only
+  final_test_gene_role: final_evaluation_only
+  scrna_max_cells: 5000
+  adapter_metrics: disabled
+  centralized_metrics: [SPCC, RMSE, JSD, SSIM]
+  cache_reuse_across_folds: false
+  failure_policy: fail_closed
+  hidden_gene_fallback: none
+
+methods:
+  Tangram:
+    display_name: Tangram
+    official_repository: https://github.com/broadinstitute/Tangram
+    upstream_revision: d537ff936a1a26445a0f196c714d100d10e3e5ea
+    upstream_identifier: "tag 1.0.4"
+    software_version: "1.0.4"
+    adapter: baseline_adapters/tangram/run_tangram_mhpr_fold_from_split.py
+    runtime_patch: baseline_adapters/patches/tangram_1.0.4_protocol_a.patch
+    parameters:
+      mode: clusters
+      density_prior: rna_count_based
+      cluster_label: leiden
+      leiden_resolution: 0.5
+      num_epochs: 1000
+      learning_rate: 0.1
+      device: cuda:0
+
+  TransImp:
+    display_name: TransImp
+    implementation: tranSpa/transpa
+    official_repository: https://github.com/qiaochen/tranSpa
+    upstream_revision: dfce951986fba20b80f6c332e22d16cfb24e89e7
+    upstream_identifier: "transpa 0.2.0 source snapshot"
+    software_version: "0.2.0"
+    adapter: baseline_adapters/transimp/run_transimp_mhpr_fold_from_split.py
+    runtime_patch: baseline_adapters/patches/transimp_0.2.0_protocol_a.patch
+    parameters:
+      mapping_mode: lowrank
+      signature_mode: cell
+      mapping_lowdim: 256
+      n_epochs: 2000
+      learning_rate: 0.01
+      weight_decay: 0.01
+      spatial_weight: 0.1
+      js_weight: 0.0
+      knn: 8
+      device: cuda:0
+
+  SpaIM:
+    display_name: SpaIM
+    official_repository: https://github.com/QSong-github/SpaIM
+    upstream_revision: 1674f5c5af7c3098fc458d8737afd7ae0f53db71
+    upstream_identifier: "tag V1.0.0"
+    software_version: "V1.0.0"
+    source_archive_doi: 10.5281/zenodo.16688132
+    adapter: baseline_adapters/spaim/run_spaim_mhpr_fold_from_split.py
+    runtime_patch: baseline_adapters/patches/spaim_v1.0.0_protocol_a.patch
+    parameters:
+      epochs: 50
+      batch_size: 500
+      style_dim: 1
+      learning_rate: 0.001
+      model_layers: [256, 512]
+      leiden_resolution: 0.5
+      gpu: 0
+      native_filtering: disabled_for_frozen_gene_coverage
+      kmeans_cluster_fallback: disabled
+      missing_hidden_gene_fallback: error
+
+  SpaGE:
+    display_name: SpaGE
+    official_repository: https://github.com/tabdelaal/SpaGE
+    upstream_revision: edd0fb7086eca791c6589020893eb4f034b195c7
+    upstream_identifier: "upstream source snapshot"
+    software_version: untagged
+    adapter: baseline_adapters/spage/run_spage_mhpr_fold_from_split.py
+    runtime_patch: baseline_adapters/patches/spage_protocol_a.patch
+    parameters:
+      principal_vectors: 30
+      cache: disabled
+
+  stPlus:
+    display_name: stPlus
+    official_repository: https://github.com/xy-chen16/stPlus
+    upstream_revision: 06294c6cf63d6d81555ffdd4d19c571c49805ff2
+    upstream_identifier: "upstream source snapshot"
+    software_version: untagged
+    adapter: baseline_adapters/stplus/run_stplus_mhpr_fold_from_split.py
+    runtime_patch: baseline_adapters/patches/stplus_protocol_a.patch
+    parameters:
+      top_k_requested: 2000
+      t_min: 5
+      n_neighbors: 50
+      max_epoch_num: 10000
+      batch_size: 512
+      converge_ratio: 0.004
+      weight_decay: 0.0002
+      learning_rate: native_default
+      checkpoint_reuse: disabled
+
+  stAI:
+    display_name: stAI
+    official_repository: https://github.com/gszou99/stAI
+    upstream_revision: 3376cc16cc6d8461edafc0aeb4519b92d18474b7
+    upstream_identifier: "official source commit"
+    software_version: "NAR 2025 source snapshot"
+    article_doi: 10.1093/nar/gkaf158
+    adapter: baseline_adapters/stai/run_stai_protocol_a.py
+    formal_run_adapter_sha256: 8f00df9d89a2d8fc9fa8e3201c6e4b71ff2d0521e48cd687c9e7718ae741dec4
+    runtime_patch: none
+    parameters:
+      epochs: 500
+      internal_models: 5
+      learning_rate: 0.002
+      spatial_batch_size: 512
+      scrna_batch_size: 512
+      spatial_knn: 10
+      topk: 50
+      seed: 8848
+      query_chunk: 128
+      encoder_chunk: 1024
+      d_hidden: 64
+      d_latent: 16
+      lam_clf: 0.1
+      lam_cos: 1.0
+      lam_genegraph: 0.0
+      lam_impute: 1.0
+      lam_mmd: 0.1
+      lam_recon: 1.0
+      pseudo_labels: disabled

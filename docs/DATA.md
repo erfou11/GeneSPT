@@ -1,9 +1,8 @@
 # Data and frozen splits
 
-Large matrices and prediction files are not tracked in GitHub.
-
-- DOI: <https://doi.org/10.5281/zenodo.21223023>
-- Record: <https://zenodo.org/records/21223023>
+Large matrices and prediction files are not tracked in GitHub. The cleaned
+reviewer archive is prepared locally, and its replacement Zenodo DOI will be
+added here only after the new record is published.
 
 The archive contains reviewer-facing processed inputs, frozen gene splits,
 source tables, prediction matrices, ground-truth matrices, label provenance,
@@ -17,3 +16,10 @@ not commit local copies of expression matrices to this repository.
 Strict whole-gene holdout reserves test-gene ST expression for final evaluation
 only. scRNA-derived descriptors for test genes are allowed as external gene
 identity information and do not contain test-gene ST spatial expression.
+
+stAI additionally requires author-provided scRNA cell labels for its
+supervised reference encoder. Their source columns, alignment rules, cell
+counts and source hashes are recorded in Supplementary Table S1 and the
+archive label-provenance records. No pseudo-labels are used. Local full
+retraining supplies these files through the six `STAI_*_LABEL_PATH`
+environment variables documented in `baseline_adapters/stai/README.md`.

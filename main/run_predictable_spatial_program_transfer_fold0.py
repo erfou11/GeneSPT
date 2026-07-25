@@ -102,8 +102,14 @@ def fit_svd_bases_only(X_train: np.ndarray, seed: int) -> list[Basis]:
 
 
 def fit_spatiality_predictor(D_train: np.ndarray, train_moran: np.ndarray, D_eval: np.ndarray) -> np.ndarray:
+    finite_desc = np.isfinite(D_train).all(axis=1)
+    finite_target = np.isfinite(train_moran)
+    if int(finite_target.sum()) < 2:
+        raise ValueError("Spatiality predictor requires at least two finite training-gene Moran's I values")
+    target = np.asarray(train_moran, dtype=np.float32).copy()
+    target[~finite_target] = float(np.nanmedian(target[finite_target]))
     model = Ridge(alpha=1.0)
-    model.fit(D_train, train_moran)
+    model.fit(D_train[finite_desc], target[finite_desc])
     return model.predict(D_eval).astype(np.float32)
 
 

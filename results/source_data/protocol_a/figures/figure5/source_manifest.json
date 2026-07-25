@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "artifact": "figure5_protocol_a_cross_platform_per_gene_violins_source.csv",
+  "archive_relative_path": "results_source_data/figures/figure5/source.csv",
+  "rows": 311780,
+  "bytes": 64081913,
+  "sha256": "aee05b75dbfa134123e33e1fa7f43f14d241d0ad177366c0202529063fcc1269",
+  "methods": [
+    "GeneSPT",
+    "Tangram",
+    "TransImp",
+    "SpaIM",
+    "SpaGE",
+    "stPlus",
+    "stAI"
+  ],
+  "git_tracking": "omitted_due_to_size"
+}

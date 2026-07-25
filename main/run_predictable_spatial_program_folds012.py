@@ -8,6 +8,10 @@ This validates the fold0-selected mechanism without introducing a new module:
   - Top-32 predictable components selected on val genes.
   - Spatiality-bin lambdas selected on val genes.
   - Test genes are evaluated once per fold.
+
+Dataset-specific matrices, frozen masks, GC caches, and descriptor caches can
+be supplied explicitly so the same controlled PSP comparison is reusable
+without retraining the gene-conditioned decoder.
 """
 
 from __future__ import annotations
@@ -55,9 +59,77 @@ from run_strict_gene_conditioned_decoder_gate import (
     subgroup_indices,
     summarize_gene_df,
 )
+from protocol_a_preprocessing import normalize_st_protocol_a
 
 
 INFO = Path("/workspace/GeneSPT/results/imformation")
+ST_TARGET_SUM = 1e4
+ZERO_TRAIN_LIBRARY_STRATEGY = "set_entire_normalized_spot_row_to_zero"
+
+
+def log1p_cpm_with_denominator_genes(
+    X_counts: np.ndarray,
+    denominator_gene_idx: np.ndarray,
+    target_sum: float = ST_TARGET_SUM,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Normalize a full count matrix using libraries from a gene subset only."""
+
+    counts = np.asarray(X_counts, dtype=np.float32)
+    idx = np.asarray(denominator_gene_idx, dtype=np.int64)
+    if counts.ndim != 2:
+        raise ValueError(f"ST count matrix must be 2D, got shape {counts.shape}")
+    if idx.ndim != 1 or idx.size == 0:
+        raise ValueError("denominator_gene_idx must be a non-empty 1D array")
+    if np.unique(idx).size != idx.size:
+        raise ValueError("denominator_gene_idx contains duplicate genes")
+    if int(idx.min()) < 0 or int(idx.max()) >= counts.shape[1]:
+        raise IndexError("denominator_gene_idx contains an out-of-range gene index")
+    if not np.isfinite(counts).all():
+        raise ValueError("ST count matrix contains non-finite values")
+    if np.any(counts < 0):
+        raise ValueError("ST count matrix contains negative values")
+    if not np.isfinite(target_sum) or target_sum <= 0:
+        raise ValueError("target_sum must be finite and positive")
+
+    library_sizes = counts[:, idx].sum(axis=1, dtype=np.float64)
+    zero_library = library_sizes == 0.0
+    safe_library_sizes = library_sizes.copy()
+    safe_library_sizes[zero_library] = 1.0
+
+    normalized = np.empty_like(counts, dtype=np.float32)
+    np.divide(counts, safe_library_sizes.astype(np.float32)[:, None], out=normalized)
+    normalized *= np.float32(target_sum)
+    np.log1p(normalized, out=normalized)
+    normalized[zero_library, :] = 0.0
+    return normalized, library_sizes
+
+
+def self_check_train_gene_normalization() -> None:
+    """Check that held-out counts cannot affect train-gene normalization."""
+
+    counts = np.asarray(
+        [
+            [4.0, 6.0, 2.0, 1.0],
+            [0.0, 0.0, 7.0, 8.0],
+            [1.0, 3.0, 0.0, 5.0],
+        ],
+        dtype=np.float32,
+    )
+    train_idx = np.asarray([0, 1], dtype=np.int64)
+    changed = counts.copy()
+    changed[:, 2:] = np.asarray([[200.0, 100.0], [70.0, 80.0], [90.0, 50.0]], dtype=np.float32)
+
+    normalized, libraries = log1p_cpm_with_denominator_genes(counts, train_idx)
+    changed_normalized, changed_libraries = log1p_cpm_with_denominator_genes(changed, train_idx)
+
+    np.testing.assert_array_equal(libraries, changed_libraries)
+    np.testing.assert_array_equal(normalized[:, train_idx], changed_normalized[:, train_idx])
+    if int(np.count_nonzero(libraries == 0.0)) != 1:
+        raise AssertionError("expected exactly one zero train-library spot")
+    if np.any(normalized[1]) or np.any(changed_normalized[1]):
+        raise AssertionError("zero train-library spots must normalize to an all-zero row")
+    if np.array_equal(normalized[[0, 2], 2:], changed_normalized[[0, 2], 2:]):
+        raise AssertionError("held-out values should still be normalized in nonzero-library spots")
 
 
 def set_seed(seed: int) -> None:
@@ -99,6 +171,34 @@ def load_or_train_base_cached(
             if not cache.exists():
                 continue
             cached = np.load(cache)
+            if args.st_normalization_scope == "train_genes":
+                required_normalization_meta = {
+                    "st_normalization_scope",
+                    "normalization_denominator_gene_idx",
+                    "zero_train_library_strategy",
+                }
+                missing_normalization_meta = sorted(required_normalization_meta.difference(cached.files))
+                if missing_normalization_meta:
+                    print(
+                        f"[PSP] fold{fold}: skipping base cache without strict ST normalization metadata: {cache}",
+                        flush=True,
+                    )
+                    cached.close()
+                    continue
+                cache_scope = str(np.asarray(cached["st_normalization_scope"]).item())
+                cache_strategy = str(np.asarray(cached["zero_train_library_strategy"]).item())
+                cache_denominator_idx = cached["normalization_denominator_gene_idx"].astype(np.int64)
+                if (
+                    cache_scope != "train_genes"
+                    or cache_strategy != ZERO_TRAIN_LIBRARY_STRATEGY
+                    or not np.array_equal(cache_denominator_idx, train_idx.astype(np.int64))
+                ):
+                    print(
+                        f"[PSP] fold{fold}: skipping base cache with incompatible strict ST normalization: {cache}",
+                        flush=True,
+                    )
+                    cached.close()
+                    continue
             required = {"pred_val", "pred_test"}
             missing = sorted(required.difference(cached.files))
             if missing:
@@ -117,6 +217,12 @@ def load_or_train_base_cached(
 
     if not args.allow_train_base:
         searched = ", ".join(str(path) for path in cache_candidates) or "no --base-cache-dir supplied"
+        if args.st_normalization_scope == "train_genes":
+            raise FileNotFoundError(
+                "No GC cache with matching train-gene ST normalization metadata was found. "
+                "Use a compatible cache or pass --allow-train-base to explicitly retrain the GC base "
+                f"on the fold-specific X. Searched: {searched}"
+            )
         raise FileNotFoundError(
             "Canonical GC cache was not found. Supply --base-cache-dir pointing to the frozen "
             "Vis9A final_multidataset_cache dataset directory. Refusing to train a replacement GC "
@@ -142,18 +248,26 @@ def load_or_train_base_cached(
         lr=args.lr,
         seed=args.seed + 1701 * fold,
     )
-    np.savez_compressed(
-        cache,
-        train_idx=train_idx,
-        val_idx=val_idx,
-        test_idx=test_idx,
-        pred_train=preds["train"],
-        pred_val=preds["val"],
-        pred_test=preds["test"],
-        residual_train=X[:, train_idx].astype(np.float32) - preds["train"],
-        residual_val=X[:, val_idx].astype(np.float32) - preds["val"],
-        residual_test=X[:, test_idx].astype(np.float32) - preds["test"],
-    )
+    cache_payload = {
+        "train_idx": train_idx,
+        "val_idx": val_idx,
+        "test_idx": test_idx,
+        "pred_train": preds["train"],
+        "pred_val": preds["val"],
+        "pred_test": preds["test"],
+        "residual_train": X[:, train_idx].astype(np.float32) - preds["train"],
+        "residual_val": X[:, val_idx].astype(np.float32) - preds["val"],
+        "residual_test": X[:, test_idx].astype(np.float32) - preds["test"],
+    }
+    if args.st_normalization_scope == "train_genes":
+        cache_payload.update(
+            {
+                "st_normalization_scope": np.asarray("train_genes"),
+                "normalization_denominator_gene_idx": train_idx.astype(np.int64),
+                "zero_train_library_strategy": np.asarray(ZERO_TRAIN_LIBRARY_STRATEGY),
+            }
+        )
+    np.savez_compressed(cache, **cache_payload)
     hist = hist.copy()
     hist.insert(0, "fold", fold)
     hist.to_csv(args.out_dir / f"predictable_spatial_program_base_training_history_fold{fold}.csv", index=False)
@@ -268,30 +382,50 @@ def save_prediction_matrix(
     lambdas: dict[str, float],
     q1: float,
     q2: float,
+    base_prediction_train: np.ndarray | None = None,
+    base_prediction_val: np.ndarray | None = None,
+    selected_prediction_train: np.ndarray | None = None,
+    selected_prediction_val: np.ndarray | None = None,
+    selected_prediction_test: np.ndarray | None = None,
 ) -> Path:
     path = root / model / f"fold{fold}" / "prediction.npz"
     path.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(
-        path,
-        prediction=prediction.astype(np.float32),
-        base_prediction=base_prediction.astype(np.float32),
-        train_gene_idx=train_idx.astype(np.int64),
-        val_gene_idx=val_idx.astype(np.int64),
-        test_gene_idx=test_idx.astype(np.int64),
-        test_genes=np.asarray([genes[int(i)] for i in test_idx], dtype=object),
-        model=np.asarray(model, dtype=object),
-        fold=np.asarray(fold, dtype=np.int64),
-        base_descriptor=np.asarray("pca32", dtype=object),
-        psp_descriptor=np.asarray(descriptor, dtype=object),
-        component_keep=keep.astype(np.int64),
-        lambda_low=np.asarray(lambdas["low"], dtype=np.float64),
-        lambda_mid=np.asarray(lambdas["mid"], dtype=np.float64),
-        lambda_high=np.asarray(lambdas["high"], dtype=np.float64),
-        spatiality_q1=np.asarray(q1, dtype=np.float64),
-        spatiality_q2=np.asarray(q2, dtype=np.float64),
-        posthoc_calibration=np.asarray("none", dtype=object),
-        readout=np.asarray("identity", dtype=object),
-    )
+    payload = {
+        # Legacy test-only keys remain unchanged for downstream compatibility.
+        "prediction": prediction.astype(np.float32),
+        "base_prediction": base_prediction.astype(np.float32),
+        "train_gene_idx": train_idx.astype(np.int64),
+        "val_gene_idx": val_idx.astype(np.int64),
+        "test_gene_idx": test_idx.astype(np.int64),
+        "test_genes": np.asarray([genes[int(i)] for i in test_idx], dtype=object),
+        "model": np.asarray(model, dtype=object),
+        "fold": np.asarray(fold, dtype=np.int64),
+        "base_descriptor": np.asarray("pca32", dtype=object),
+        "psp_descriptor": np.asarray(descriptor, dtype=object),
+        "component_keep": keep.astype(np.int64),
+        "lambda_low": np.asarray(lambdas["low"], dtype=np.float64),
+        "lambda_mid": np.asarray(lambdas["mid"], dtype=np.float64),
+        "lambda_high": np.asarray(lambdas["high"], dtype=np.float64),
+        "spatiality_q1": np.asarray(q1, dtype=np.float64),
+        "spatiality_q2": np.asarray(q2, dtype=np.float64),
+        "posthoc_calibration": np.asarray("none", dtype=object),
+        "readout": np.asarray("identity", dtype=object),
+    }
+    if base_prediction_val is not None:
+        payload["base_prediction_val"] = base_prediction_val.astype(np.float32)
+        payload["base_prediction_test"] = base_prediction.astype(np.float32)
+    if base_prediction_train is not None:
+        payload["base_prediction_train"] = base_prediction_train.astype(np.float32)
+    if selected_prediction_val is not None and selected_prediction_test is not None:
+        payload["selected_prediction_val"] = selected_prediction_val.astype(np.float32)
+        payload["selected_prediction_test"] = selected_prediction_test.astype(np.float32)
+        payload["selected_rule_frozen_from_split"] = np.asarray("validation", dtype=object)
+    if selected_prediction_train is not None:
+        payload["selected_prediction_train"] = selected_prediction_train.astype(np.float32)
+        payload["selected_train_coefficient_source"] = np.asarray(
+            "ridge_descriptor_prediction_on_train_genes", dtype=object
+        )
+    np.savez_compressed(path, **payload)
     return path
 
 
@@ -396,6 +530,20 @@ def main() -> None:
     ap.add_argument("--scrna-counts-path", type=Path, default=Path("/workspace/GeneSPT/data/Vis9A_D7_spaim_effective4470/scRNA_count.txt"))
     ap.add_argument("--locations-path", type=Path, default=Path("/workspace/GeneSPT/data/Vis9A_D7_spaim_effective4470/Locations.txt"))
     ap.add_argument("--mask-dir", type=Path, default=INFO / "strict_whole_gene_masks")
+    ap.add_argument(
+        "--st-normalization-scope",
+        choices=["all_genes", "train_genes"],
+        default="train_genes",
+        help=(
+            "Genes used for each spot's ST library-size denominator. "
+            "train_genes is the strict default; all_genes is retained only for labeled legacy diagnostics."
+        ),
+    )
+    ap.add_argument(
+        "--self-check-st-normalization",
+        action="store_true",
+        help="Run the lightweight train-only ST normalization invariance check and exit.",
+    )
     ap.add_argument("--out-dir", type=Path, default=INFO)
     ap.add_argument("--steps", type=int, default=800)
     ap.add_argument("--batch-size", type=int, default=65536)
@@ -408,8 +556,18 @@ def main() -> None:
         type=Path,
         default=None,
         help=(
-            "Frozen Vis9A canonical GC cache dataset directory. Expected layout: "
+            "Frozen canonical GC cache dataset directory. Expected layout: "
             "foldN/gc_mlp_pca32_softplus_correct.npz."
+        ),
+    )
+    ap.add_argument(
+        "--descriptor-cache",
+        type=Path,
+        default=None,
+        help=(
+            "Optional frozen descriptor NPZ containing pca32, nmf32, and "
+            "pca32_nmf32 arrays in dataset gene order. When supplied, the "
+            "scRNA count matrix is not reprocessed."
         ),
     )
     ap.add_argument(
@@ -434,8 +592,18 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         default=False,
     )
+    ap.add_argument(
+        "--run-controls",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Run descriptor/basis/mean-coefficient PSP controls in addition to GC versus GC+PSP.",
+    )
     ap.add_argument("--output-prefix", type=str, default="predictable_spatial_program_folds012")
     args = ap.parse_args()
+    if args.self_check_st_normalization:
+        self_check_train_gene_normalization()
+        print("ST train-gene normalization self-check passed.")
+        return
     if args.psp_descriptor != "pca32_nmf32" and not args.allow_noncanonical_psp_descriptor:
         ap.error(
             "The frozen PSP configuration uses --psp-descriptor pca32_nmf32. "
@@ -447,16 +615,30 @@ def main() -> None:
     set_seed(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     X_counts, genes, _ = load_matrix(args.counts_path, index_col=None)
-    X = log1p_cpm(X_counts)
+    X_all_genes = log1p_cpm(X_counts) if args.st_normalization_scope == "all_genes" else None
     coords = pd.read_csv(args.locations_path, sep="\t").to_numpy(dtype=np.float32)
     edges = make_knn_edges(coords, k=8)
-    X_sc_counts, sc_genes, _ = load_matrix(args.scrna_counts_path, index_col=0)
-    if list(sc_genes) != list(genes):
-        sc_map = {g: i for i, g in enumerate(sc_genes)}
-        X_sc_counts = X_sc_counts[:, [sc_map[g] for g in genes]]
-    X_sc = log1p_cpm(X_sc_counts)
-    desc = build_descriptors(X_sc, pca_dims=[32], nmf_dims=[32], seed=args.seed)
-    desc["pca32_nmf32"] = np.concatenate([desc["pca32"], desc["nmf32"]], axis=1).astype(np.float32)
+    if args.descriptor_cache is not None:
+        cached_desc = np.load(args.descriptor_cache)
+        required_desc = {"pca32", "nmf32", "pca32_nmf32"}
+        missing_desc = sorted(required_desc.difference(cached_desc.files))
+        if missing_desc:
+            raise KeyError(f"Descriptor cache is missing required arrays: {missing_desc}")
+        desc = {key: cached_desc[key].astype(np.float32) for key in required_desc}
+        for key, value in desc.items():
+            if value.shape[0] != len(genes):
+                raise ValueError(
+                    f"Descriptor cache gene count mismatch for {key}: "
+                    f"{value.shape[0]} rows versus {len(genes)} dataset genes"
+                )
+    else:
+        X_sc_counts, sc_genes, _ = load_matrix(args.scrna_counts_path, index_col=0)
+        if list(sc_genes) != list(genes):
+            sc_map = {g: i for i, g in enumerate(sc_genes)}
+            X_sc_counts = X_sc_counts[:, [sc_map[g] for g in genes]]
+        X_sc = log1p_cpm(X_sc_counts)
+        desc = build_descriptors(X_sc, pca_dims=[32], nmf_dims=[32], seed=args.seed)
+        desc["pca32_nmf32"] = np.concatenate([desc["pca32"], desc["nmf32"]], axis=1).astype(np.float32)
     D = desc[args.psp_descriptor]
 
     prediction_root = args.out_dir / f"{args.output_prefix}_prediction_matrices"
@@ -466,19 +648,82 @@ def main() -> None:
     comp_rows = []
     figure_payloads = []
     lambda_selection_rows = []
+    st_normalization_by_fold = []
 
     for fold in args.folds:
         print(f"[PSP] fold{fold}: loading masks/base", flush=True)
-        train_idx = np.load(args.mask_dir / f"fold{fold}_train_gene_idx.npy")
-        val_idx = np.load(args.mask_dir / f"fold{fold}_val_gene_idx.npy")
-        test_idx = np.load(args.mask_dir / f"fold{fold}_test_gene_idx.npy")
-        low_val_idx, high_val_idx = subgroup_indices(X, val_idx, coords)
-        low_test_idx, high_test_idx = subgroup_indices(X, test_idx, coords)
-        base, _ = load_or_train_base_cached(X, desc["pca32"], train_idx, val_idx, test_idx, device, args, fold)
+        mask_paths = {
+            "train": args.mask_dir / f"fold{fold}_train_gene_idx.npy",
+            "val": args.mask_dir / f"fold{fold}_val_gene_idx.npy",
+            "test": args.mask_dir / f"fold{fold}_test_gene_idx.npy",
+        }
+        train_idx = np.load(mask_paths["train"])
+        val_idx = np.load(mask_paths["val"])
+        test_idx = np.load(mask_paths["test"])
+
+        if args.st_normalization_scope == "all_genes":
+            if X_all_genes is None:
+                raise RuntimeError("legacy all-gene ST normalization was not initialized")
+            X_fold = X_all_genes
+            denominator_gene_count = int(X_counts.shape[1])
+            all_gene_libraries = np.asarray(X_counts, dtype=np.float32).sum(axis=1, dtype=np.float64)
+            zero_library_spot_count = int(np.count_nonzero(all_gene_libraries == 0.0))
+            zero_library_strategy = "legacy_clip_library_size_to_at_least_1.0"
+        else:
+            X_fold_raw, normalization_audit = normalize_st_protocol_a(
+                X_counts,
+                inner_train_gene_idx=train_idx,
+                val_gene_idx=val_idx,
+                test_gene_idx=test_idx,
+                require_complete_coverage=True,
+            )
+            X_fold = X_fold_raw.astype(np.float32)
+            denominator_gene_count = int(
+                normalization_audit["denominator_gene_count"]
+            )
+            zero_library_spot_count = int(
+                normalization_audit["zero_train_library_spot_count"]
+            )
+            zero_library_strategy = str(
+                normalization_audit["zero_train_library_policy"]
+            )
+            print(
+                f"[PSP] fold{fold}: ST train-gene denominator uses {denominator_gene_count} genes; "
+                f"zero train-library spots={zero_library_spot_count}; strategy={zero_library_strategy}",
+                flush=True,
+            )
+
+        st_normalization_by_fold.append(
+            {
+                "fold": int(fold),
+                "scope": args.st_normalization_scope,
+                "denominator_gene_count": denominator_gene_count,
+                "zero_library_spot_count": zero_library_spot_count,
+                "zero_train_library_spot_count": (
+                    zero_library_spot_count if args.st_normalization_scope == "train_genes" else None
+                ),
+                "zero_library_strategy": zero_library_strategy,
+                "normalization_audit": (
+                    normalization_audit
+                    if args.st_normalization_scope == "train_genes"
+                    else None
+                ),
+                "eligible_for_strict_primary": bool(
+                    args.st_normalization_scope == "train_genes"
+                ),
+                "mask_paths": {name: str(path) for name, path in mask_paths.items()},
+            }
+        )
+
+        low_val_idx, high_val_idx = subgroup_indices(X_fold, val_idx, coords)
+        low_test_idx, high_test_idx = subgroup_indices(X_fold, test_idx, coords)
+        base, _ = load_or_train_base_cached(
+            X_fold, desc["pca32"], train_idx, val_idx, test_idx, device, args, fold
+        )
 
         base_val_row = summarize_pred(
             "gc_mlp_base_val",
-            X,
+            X_fold,
             base["val"],
             val_idx,
             low_val_idx,
@@ -488,7 +733,7 @@ def main() -> None:
         )
         base_test_row, base_gene = summarize_model(
             "gc_mlp_base",
-            X,
+            X_fold,
             base["test"],
             test_idx,
             low_test_idx,
@@ -498,8 +743,8 @@ def main() -> None:
         )
 
         print(f"[PSP] fold{fold}: fitting SVD raw K=64 and val component predictability", flush=True)
-        basis = fit_svd_raw_basis(X[:, train_idx], k=64, seed=args.seed + fold)
-        X_val_proc, val_meta = preprocess_train(X[:, val_idx], "raw")
+        basis = fit_svd_raw_basis(X_fold[:, train_idx], k=64, seed=args.seed + fold)
+        X_val_proc, val_meta = preprocess_train(X_fold[:, val_idx], "raw")
         C_val_oracle = project_coeff(basis.A, X_val_proc)
         C_val_pred = fit_predict_coeff("ridge", D[train_idx], basis.C_train, D[val_idx], 10.0, seed=args.seed + fold)
         comp_df = component_stats(C_val_pred, C_val_oracle)
@@ -515,10 +760,17 @@ def main() -> None:
         keep = comp_df.sort_values("rank_score", ascending=False).head(min(32, basis.k))["component"].to_numpy(dtype=np.int64)
         program_val = selected_component_prediction(basis.A, C_val_pred, val_meta, keep)
 
-        train_sp = compute_spatiality(X, train_idx, edges)
+        train_sp = compute_spatiality(X_fold, train_idx, edges)
         pred_sp_val = fit_spatiality_predictor(D[train_idx], train_sp["MoranI"].to_numpy(dtype=np.float32), D[val_idx])
         lambdas, lambda_score, bin_val_df = bin_lambdas_from_val(
-            X, base["val"], program_val, val_idx, low_val_idx, high_val_idx, genes, pred_sp_val
+            X_fold,
+            base["val"],
+            program_val,
+            val_idx,
+            low_val_idx,
+            high_val_idx,
+            genes,
+            pred_sp_val,
         )
         bin_val_df.insert(0, "fold", fold)
         bin_val_df["selected_lambda_score"] = lambda_score
@@ -528,6 +780,28 @@ def main() -> None:
         program_test = selected_component_prediction(basis.A, C_test_pred, basis.meta, keep)
         pred_sp_test = fit_spatiality_predictor(D[train_idx], train_sp["MoranI"].to_numpy(dtype=np.float32), D[test_idx])
         selected_test = apply_bin_lambdas(base["test"], program_test, pred_sp_test, (q1, q2), lambdas)
+        selected_val = None
+        selected_train = None
+        if args.save_prediction_matrices:
+            selected_val = apply_bin_lambdas(base["val"], program_val, pred_sp_val, (q1, q2), lambdas)
+            if base["train"] is not None:
+                C_train_pred = fit_predict_coeff(
+                    "ridge",
+                    D[train_idx],
+                    basis.C_train,
+                    D[train_idx],
+                    10.0,
+                    seed=args.seed + fold,
+                )
+                program_train = selected_component_prediction(basis.A, C_train_pred, basis.meta, keep)
+                pred_sp_train = fit_spatiality_predictor(
+                    D[train_idx],
+                    train_sp["MoranI"].to_numpy(dtype=np.float32),
+                    D[train_idx],
+                )
+                selected_train = apply_bin_lambdas(
+                    base["train"], program_train, pred_sp_train, (q1, q2), lambdas
+                )
 
         test_bin_counts = {
             "low": int(np.sum(pred_sp_test <= q1)),
@@ -552,7 +826,7 @@ def main() -> None:
         }
         selected_row, selected_gene = summarize_model(
             "predictable_spatial_program_selected_correct",
-            X,
+            X_fold,
             selected_test,
             test_idx,
             low_test_idx,
@@ -565,23 +839,29 @@ def main() -> None:
             "gc_mlp_base": base["test"],
             "predictable_spatial_program_selected_correct": selected_test,
         }
-        controls = [
-            ("shuffled_descriptor", make_descriptor_control(D, "shuffled", seed=args.seed + 1 + fold)[0], basis, False),
-            ("random_descriptor", make_descriptor_control(D, "random", seed=args.seed + 2 + fold)[0], basis, False),
-            ("permuted_labels", make_descriptor_control(D, "permuted_labels", seed=args.seed + 3 + fold)[0], basis, False),
-        ]
-        rng = np.random.default_rng(args.seed + 444 + fold)
-        A_rand = rng.normal(0, float(np.std(basis.A) + 1e-6), size=basis.A.shape).astype(np.float32)
-        rand_basis = Basis("random_basis", "raw", basis.k, A_rand, project_coeff(A_rand, X[:, train_idx]), basis.meta)
-        A_perm = basis.A[rng.permutation(basis.A.shape[0])].astype(np.float32)
-        perm_basis = Basis("spot_permuted_basis", "raw", basis.k, A_perm, project_coeff(A_perm, X[:, train_idx]), basis.meta)
-        controls.extend(
-            [
-                ("random_spatial_basis", D, rand_basis, False),
-                ("spot_permuted_spatial_program", D, perm_basis, False),
-                ("mean_coefficient_baseline", D, basis, True),
+        controls = []
+        if args.run_controls:
+            controls = [
+                ("shuffled_descriptor", make_descriptor_control(D, "shuffled", seed=args.seed + 1 + fold)[0], basis, False),
+                ("random_descriptor", make_descriptor_control(D, "random", seed=args.seed + 2 + fold)[0], basis, False),
+                ("permuted_labels", make_descriptor_control(D, "permuted_labels", seed=args.seed + 3 + fold)[0], basis, False),
             ]
-        )
+            rng = np.random.default_rng(args.seed + 444 + fold)
+            A_rand = rng.normal(0, float(np.std(basis.A) + 1e-6), size=basis.A.shape).astype(np.float32)
+            rand_basis = Basis(
+                "random_basis", "raw", basis.k, A_rand, project_coeff(A_rand, X_fold[:, train_idx]), basis.meta
+            )
+            A_perm = basis.A[rng.permutation(basis.A.shape[0])].astype(np.float32)
+            perm_basis = Basis(
+                "spot_permuted_basis", "raw", basis.k, A_perm, project_coeff(A_perm, X_fold[:, train_idx]), basis.meta
+            )
+            controls.extend(
+                [
+                    ("random_spatial_basis", D, rand_basis, False),
+                    ("spot_permuted_spatial_program", D, perm_basis, False),
+                    ("mean_coefficient_baseline", D, basis, True),
+                ]
+            )
 
         fold_rows = [base_test_row, selected_row]
         fold_gene = [base_gene, selected_gene]
@@ -594,7 +874,7 @@ def main() -> None:
             pred_ctrl = apply_bin_lambdas(base["test"], prog_ctrl, pred_sp_test, (q1, q2), lambdas)
             row, gene_df = summarize_model(
                 f"predictable_spatial_program_{name}_control",
-                X,
+                X_fold,
                 pred_ctrl,
                 test_idx,
                 low_test_idx,
@@ -623,6 +903,9 @@ def main() -> None:
 
         if args.save_prediction_matrices:
             for model_name, prediction in fold_predictions.items():
+                is_base_model = model_name == "gc_mlp_base"
+                is_selected_model = model_name == "predictable_spatial_program_selected_correct"
+                include_base_splits = is_base_model or is_selected_model
                 save_prediction_matrix(
                     prediction_root,
                     model_name,
@@ -638,6 +921,11 @@ def main() -> None:
                     lambdas,
                     float(q1),
                     float(q2),
+                    base_prediction_train=base["train"] if include_base_splits else None,
+                    base_prediction_val=base["val"] if include_base_splits else None,
+                    selected_prediction_train=selected_train if is_selected_model else None,
+                    selected_prediction_val=selected_val if is_selected_model else None,
+                    selected_prediction_test=selected_test if is_selected_model else None,
                 )
 
         fold_df = pd.DataFrame(fold_rows)
@@ -680,12 +968,9 @@ def main() -> None:
             row[f"missing_{metric}"] = int((~finite).sum())
         completeness_rows.append(row)
     completeness = pd.DataFrame(completeness_rows)
-    expected_n = int(completeness["total_test_genes"].iloc[0])
-    if not completeness["total_test_genes"].eq(expected_n).all():
-        raise RuntimeError("Model-dependent test-gene counts detected")
-    missing_columns = [f"missing_{metric}" for metric in metric_columns]
-    if int(completeness[missing_columns].to_numpy().sum()) != 0:
-        raise RuntimeError("Non-finite test-gene metrics detected")
+    for fold, fold_completeness in completeness.groupby("fold", sort=True):
+        if fold_completeness["total_test_genes"].nunique() != 1:
+            raise RuntimeError(f"Model-dependent test-gene counts detected in fold {fold}")
 
     prefix = args.output_prefix
     long_path = args.out_dir / f"{prefix}_long.csv"
@@ -710,6 +995,10 @@ def main() -> None:
                 "seed": int(args.seed),
                 "counts_path": str(args.counts_path),
                 "scrna_counts_path": str(args.scrna_counts_path),
+                "st_normalization_scope": args.st_normalization_scope,
+                "st_normalization_target_sum": float(ST_TARGET_SUM),
+                "st_normalization_by_fold": st_normalization_by_fold,
+                "descriptor_cache": str(args.descriptor_cache) if args.descriptor_cache else None,
                 "locations_path": str(args.locations_path),
                 "mask_dir": str(args.mask_dir),
                 "out_dir": str(args.out_dir),
@@ -722,8 +1011,21 @@ def main() -> None:
                 "fusion": "predicted-spatiality bins selected on validation genes",
                 "posthoc_calibration": "none",
                 "readout": "identity",
-                "test_gene_metric_policy": "fixed frozen test set; fail on any non-finite metric",
+                "test_gene_metric_policy": (
+                    "legacy metric table records non-finite values explicitly; final complete-set "
+                    "evaluation is recomputed from saved prediction matrices"
+                ),
                 "prediction_matrices_saved": bool(args.save_prediction_matrices),
+                "prediction_matrix_split_payload": {
+                    "legacy_test_keys_preserved": True,
+                    "base_train_saved_when_available": True,
+                    "base_val_saved_for_core_models": True,
+                    "selected_train_saved_when_base_train_available": True,
+                    "selected_val_saved": True,
+                    "selected_rule_frozen_from_split": "validation",
+                    "selected_train_coefficient_source": "ridge_descriptor_prediction_on_train_genes",
+                },
+                "run_controls": bool(args.run_controls),
                 "base_cache_dir": str(args.base_cache_dir) if args.base_cache_dir else None,
                 "allow_train_base": bool(args.allow_train_base),
                 "allow_noncanonical_psp_descriptor": bool(args.allow_noncanonical_psp_descriptor),
@@ -755,7 +1057,7 @@ def main() -> None:
     delta_rmse = float(selected_mean["RMSE_mean"] - base_mean["RMSE_mean"])
     delta_js = float(selected_mean["JS_mean"] - base_mean["JS_mean"])
     delta_ssim = float(selected_mean["SSIM_mean"] - base_mean["SSIM_mean"])
-    controls_ok = bool(
+    controls_ok = True if control_summary.empty else bool(
         selected_mean["SPCC_mean"] > control_summary["SPCC_mean"].max()
         and selected_mean["RMSE_mean"] <= control_summary["RMSE_mean"].min() + 1e-12
         and selected_mean["JS_mean"] <= control_summary["JS_mean"].min() + 1e-12

@@ -1,0 +1,489 @@
+{
+  "artifact_policy": "Final test-gene prediction matrices, frozen gene axes and centralized metrics only; checkpoints and submodel artifacts are not promoted.",
+  "folds": [
+    {
+      "audit_sha256": "968d17b16a20f945bd75ee0aa7e3f4f7c79001727f73ca682371c9cc0cb250d9",
+      "axis_sha256": "9e9f1d9a20399cc3970aed934ebf9a34d1104f0488a140cbb86f4a1ab771d598",
+      "dataset": "Vis9A",
+      "dataset_id": "Vis9A_D7_spaim_effective4470",
+      "fold": 0,
+      "per_gene_metrics_sha256": "2ca974dcbadc0d9c22ad03dc1f3d86b878c69203efd61750a4a78ac549cd1aea",
+      "prediction_sha256": "3d02a95f79da4d4a1d30780709787a49cdfe9babf891a24ad6202c5582e88877",
+      "prediction_shape": [
+        995,
+        894
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "0dbd60dc80c65ea64aeb410a893330a125b4d47edd3bfa2f725a1b114a882e94",
+      "test_gene_idx_sha256": "57e7fbd501397dd96903025d098c6d0654fd84a8376aa8cbd2d02e2a8c7744a6"
+    },
+    {
+      "audit_sha256": "707adac5607772593a4812245f25c2591ede8fd45fcc280336bfc28f72eb4674",
+      "axis_sha256": "294e05c1cf55d9e42df0f0e3b2eb0c7d3eb8e2bf09d6054e71879fff92607348",
+      "dataset": "Vis9A",
+      "dataset_id": "Vis9A_D7_spaim_effective4470",
+      "fold": 1,
+      "per_gene_metrics_sha256": "8410637748bbf787622fbeecb4ab5c6076fc5fbcc7be560dcccb407c18f872a3",
+      "prediction_sha256": "a2a5968531027886fc4fcb221c1e91ca56d3b42dc33b272e1556449dc35038ba",
+      "prediction_shape": [
+        995,
+        894
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "e58e72956d9cf124c017d1e631cc99fca9ef0eca47a81a69bfbc34ac1b4c3613",
+      "test_gene_idx_sha256": "4144611f01d94bb6c02afa019c09ca074844b440b7256b5aaca06694a93dab4c"
+    },
+    {
+      "audit_sha256": "42d528294b003aff6914bcd00e90ca82cfd1c5dd9d1d716d73638fa6c8d9c79c",
+      "axis_sha256": "fd278667ff0f7a260c9a9f1e90800a3056f3ad7938396aad24ad28c3a11f6e11",
+      "dataset": "Vis9A",
+      "dataset_id": "Vis9A_D7_spaim_effective4470",
+      "fold": 2,
+      "per_gene_metrics_sha256": "69919684b9b8c0d74fad65a46ec5acf831538ea02896809fe756b91ab267aa2d",
+      "prediction_sha256": "361e09066d1bbed9246bba4b27166139c76b7dcc5ef8a8d064123c6287513614",
+      "prediction_shape": [
+        995,
+        894
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "5c7e7749b3070f18f4ae0d6afd395e24e718e912318d6879fd3b7509e94a2e6b",
+      "test_gene_idx_sha256": "7cae44966a17b81f89a451666293b5657d674f6fc7e27010830b5c0fa42f41f6"
+    },
+    {
+      "audit_sha256": "52bc426ddba726fa704625b415b1a969abc311662d04732441457c0247156852",
+      "axis_sha256": "5667802573cac02f4c133f59114497808dd244981202b4a5706666bb05b7d62d",
+      "dataset": "Vis9A",
+      "dataset_id": "Vis9A_D7_spaim_effective4470",
+      "fold": 3,
+      "per_gene_metrics_sha256": "13742c7c293db24b15ea5aeb743dea967c7e7701b4a223b39ea60cd1806d53b4",
+      "prediction_sha256": "47bbea6e011d6d83aabd7d0eb2b9bf058a97e3fffc2d24ec9e43b31dd5325b76",
+      "prediction_shape": [
+        995,
+        894
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "d288daedde0d358e39fca473c9a10f852c85bf2cc507e5da97dc170cc03886b2",
+      "test_gene_idx_sha256": "3742e2172a7eac78f2989523748ef3c3752e2a453116e044dd537826a661110c"
+    },
+    {
+      "audit_sha256": "7c90f163f8c09068e9c03bf4d968caa34a738b86077e25022c2c93615abe0f88",
+      "axis_sha256": "41724b5f4d3ab5efac03cee6a86af6e2b676d4f0c1d941a94dd3ce4eaad814ab",
+      "dataset": "Vis9A",
+      "dataset_id": "Vis9A_D7_spaim_effective4470",
+      "fold": 4,
+      "per_gene_metrics_sha256": "e88824365ed0981b8849d04299acb6fa0dc25c87d466abbb30f386720ec4c34a",
+      "prediction_sha256": "09777dd509aba6e629cca1a9c9af3690c8db0e8deb734fd018313d65b3cc1f5c",
+      "prediction_shape": [
+        995,
+        894
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "bfa4a83b04fbfd36f05c03cc8aecec9f1786d71398e6919c4a3ac69d097c100b",
+      "test_gene_idx_sha256": "24eb3cef8ef086bf0ed8914150995af392babdca7742890291cc47ce0bcbfae3"
+    },
+    {
+      "audit_sha256": "2282036ab822c894c2f4deb76d82c2c403880740bc07bd7e8daa4f0b3c3786f4",
+      "axis_sha256": "54c954a14c71a2a97a9f5cc9cb6f3cc7c1ccd61e1e3f5a9cfc87ada35797895a",
+      "dataset": "HBC",
+      "dataset_id": "HBC_shared16112",
+      "fold": 0,
+      "per_gene_metrics_sha256": "ec7ba675707be4ea3662dbeb34433a8b497092a913cebda5981bbe9cfdf4347f",
+      "prediction_sha256": "60da1a33df4557c0def91400f1d88e7db3f3d6006fc3c08b3c11cfbb9dd62b0c",
+      "prediction_shape": [
+        4784,
+        3223
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "9dc13024fd8f9d20b34821851ebb94d22d13f6a6ca3d7f50404559e7ed5d20b0",
+      "test_gene_idx_sha256": "518e12226830297801568ba2645edc29de2cd4b5f0b87f09536610254c0224b6"
+    },
+    {
+      "audit_sha256": "bdfa94debe052e5e3901b8d7f709b7a284f0d9b4e866e31f7854de8e8773de10",
+      "axis_sha256": "5889c977ebaa7196d73720e6ae28ebbedd36365ba917555f67a2b33d76f276f8",
+      "dataset": "HBC",
+      "dataset_id": "HBC_shared16112",
+      "fold": 1,
+      "per_gene_metrics_sha256": "8750c4f5fb5be822316cd8422c4ff0d28fceb649b7daf474a85a80da57dcf3f1",
+      "prediction_sha256": "7c60b517b68dea39afddce7ba20b96652a7f5ae1363da20dca76aad31431ee7b",
+      "prediction_shape": [
+        4784,
+        3223
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "7a6269f1723e608d3eec7588882240f35dc9dd7da613d6489f1b68d41b8412a1",
+      "test_gene_idx_sha256": "8a79085a4b2517a07049eff1566947275e1f1f0fecb41f8c2e8460c18e635dfc"
+    },
+    {
+      "audit_sha256": "716493a3052b96d646a771e15d9cb91555a03cd9ab799f02ca2814f02634e56b",
+      "axis_sha256": "981792f71266645cabb738b2baa538e4e8dd9e34503013ce33b8b93ee4c715dd",
+      "dataset": "HBC",
+      "dataset_id": "HBC_shared16112",
+      "fold": 2,
+      "per_gene_metrics_sha256": "0772b01b0741ddd48c955e61bc4c4d34be824835dd3a028d92f2c779fea1e1aa",
+      "prediction_sha256": "58ded561d53f075fa7e430a5c237745b9863790c5506959de78718780872fdcd",
+      "prediction_shape": [
+        4784,
+        3222
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "42941c0976e5e9a5496cd5cd5b1b8f6a4f59ad4c2302a5cdddd43806de5b97cf",
+      "test_gene_idx_sha256": "eda8ff9bce51151ec5ee51e79da8283b83e2d6c100ba139bf7b7fb92f2578011"
+    },
+    {
+      "audit_sha256": "59331c43ee0cf58621b9421cb44f498d4263d07362b9122d3a14828153c044cf",
+      "axis_sha256": "cb5a0c6100a06208311eee98d462a0a80cfda941a76ec71da393da0723e9c82f",
+      "dataset": "HBC",
+      "dataset_id": "HBC_shared16112",
+      "fold": 3,
+      "per_gene_metrics_sha256": "6464a7bc38338951fd8a84d3bdb844839cc124d0a181787cc87560b7184753e8",
+      "prediction_sha256": "5e1f7f2e8706566e204c8cb54128ffd3453916b4a2a9838148f8c3453e28542d",
+      "prediction_shape": [
+        4784,
+        3222
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "cda5e4ab3b7290a714fbaeba452544231af289c8bc7f1b92db966db1cacb0c53",
+      "test_gene_idx_sha256": "b64010e99f11e0b8ab51b36efd2425c9ae18a97f4457f7f07cd34dca2c17de90"
+    },
+    {
+      "audit_sha256": "92b3613fa8e949e37878f2ca64b25cbbe763b68d13eff4b6493504a9495d262c",
+      "axis_sha256": "d6871166f499c92f527913e5ab3690afd2b01e7319e24b4e5867c7454cd4166e",
+      "dataset": "HBC",
+      "dataset_id": "HBC_shared16112",
+      "fold": 4,
+      "per_gene_metrics_sha256": "0487e112960514b1e257cdb3cf9f60b2632592a62e45434434f9e1335117029b",
+      "prediction_sha256": "9bfa176da9ef6ea9654edc2a7bdb7bdddb4cb4d0a6e920e783e7866900d38e0a",
+      "prediction_shape": [
+        4784,
+        3222
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "b3b9967add4377759a27a23773c280d62605fd314210c1c6cac6b6611718339c",
+      "test_gene_idx_sha256": "74ade862d84a6ca3b4211ace59452e4786b2dd327a686b8f1b47aef10108227e"
+    },
+    {
+      "audit_sha256": "099b4079ea40a8f5fe353e9d7f44a0204d04e0bb02bf1f1d6008eb1b85b641d9",
+      "axis_sha256": "d110c79a4defef454435ed29eb3090532a2dd29d64e26e0d1f70754e1e2cbd6b",
+      "dataset": "Cell2location",
+      "dataset_id": "Cell2location_mouse_brain_ST8059048_shared12819",
+      "fold": 0,
+      "per_gene_metrics_sha256": "758dd520cf315d1dd4acffb8175ed73262df66a8184e316174a00da4451198ab",
+      "prediction_sha256": "fa977d6bc9b1c6c94cac0cf8333c054677adc5afb81707d881838a6807efb1c6",
+      "prediction_shape": [
+        2987,
+        2564
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "c0936ac075b9721805340dbab6c0103edc39eed8cf0ff90c0bb51b62431d9b7d",
+      "test_gene_idx_sha256": "a9ae1ea6712ac1399a6b0698e554ba97cb89a2a919d7fb74952a6d23401c4077"
+    },
+    {
+      "audit_sha256": "35f523963fb4fdbe87313dc0ce9629d66490962fde33cb3830034f99441e5ed3",
+      "axis_sha256": "371696229444460b592426161087d2f9b039f886344efa3c26b7fb6d1d8b12ba",
+      "dataset": "Cell2location",
+      "dataset_id": "Cell2location_mouse_brain_ST8059048_shared12819",
+      "fold": 1,
+      "per_gene_metrics_sha256": "e73962248eb8caad916c34cb72a7b71f2d911ba66b7b7c1c811e3496beaf5685",
+      "prediction_sha256": "c1f68b9087bffab71df175f627e53df719b0a4b1d8131314cd902ea93c56f31c",
+      "prediction_shape": [
+        2987,
+        2564
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "4caaebe084f1a78962a1d6c3ec679d77805ab509be19f27f3f33766a4309885b",
+      "test_gene_idx_sha256": "0f45bf1a177ccb3a909edf4800e33817ad9f44625578ff61843aa20b1e77b4ac"
+    },
+    {
+      "audit_sha256": "dee552e8a541708a4334c0c8874a6198dc8e8345b3a79c05f948c0934984fe5a",
+      "axis_sha256": "267d453e30c18693c15a656c2314e34ae11ddde53fd29e4bfd0f8f2013ddb927",
+      "dataset": "Cell2location",
+      "dataset_id": "Cell2location_mouse_brain_ST8059048_shared12819",
+      "fold": 2,
+      "per_gene_metrics_sha256": "e74f569e8723c33b24ddce31fb0d71bc30cb5b728dd109b2fba91097896585cb",
+      "prediction_sha256": "21916594bc6653e8723c13c8f5b90b7463c1f951703a3fe3f582605328adccd0",
+      "prediction_shape": [
+        2987,
+        2564
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "64418a28913f2460407c2505f9cdfb00d53d9cdd8b5928ccb14c445e39ebd4e6",
+      "test_gene_idx_sha256": "1aec074e06bc49cf7a525c582a5055cd3d0fac722bc92afb73aba0a56d547632"
+    },
+    {
+      "audit_sha256": "1aed41c76e839cb252ae33ad197296613a21d5b8c0d5e26eccc53be36392ae87",
+      "axis_sha256": "b21fd907e4db3052b1546a88a002d710748f2d913394dd6a865270c89ece7ee7",
+      "dataset": "Cell2location",
+      "dataset_id": "Cell2location_mouse_brain_ST8059048_shared12819",
+      "fold": 3,
+      "per_gene_metrics_sha256": "32044c244b375468b54c4b073bb11386e92ce60651c910f45c5a67de284026fc",
+      "prediction_sha256": "0ff8cc8beaa5a41d19b6ee666f7df53a5672b69dd0f0a254e850b6899ac1bba5",
+      "prediction_shape": [
+        2987,
+        2564
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "42cc1e1efb8b543739ced2e02e7aff972f07d16e80f74e36375bf9528f27736d",
+      "test_gene_idx_sha256": "2dfdc9e794efd4885d9108e6d8ce83ee8686f7e0870d08f2adb899293a2b25ad"
+    },
+    {
+      "audit_sha256": "561e07e99211868379a565b8f6f07069401680954a73da09ca409aef225e396d",
+      "axis_sha256": "085db004dbc349b68389a09e4750609094b93de9955b1152cfa5fe0f953936c6",
+      "dataset": "Cell2location",
+      "dataset_id": "Cell2location_mouse_brain_ST8059048_shared12819",
+      "fold": 4,
+      "per_gene_metrics_sha256": "830d21f7866e8ccbdec0388e3aafcc41e13e599b349915791f6c65d620911e6b",
+      "prediction_sha256": "e804ca6b156e8051f51c9bd7b9bbd184173dd48d916475b968adce434f7d6d8e",
+      "prediction_shape": [
+        2987,
+        2563
+      ],
+      "role": "primary",
+      "summary_metrics_sha256": "7538e2b0c3024676b218272f146b4a4b4f564eb0c1b692dc85ba9cdc603d5df3",
+      "test_gene_idx_sha256": "1afc2c7e5b9a5642bf0650138b3cd3d0a5b90274875c06070e6a2e9aec31cebc"
+    },
+    {
+      "audit_sha256": "d8712a1de79ceff95edbc4aa59e9fcdd7d55167ca1f9b37a7408055c6d56536c",
+      "axis_sha256": "773df02539ef15ec6f0cc5b7ef17bcb0872dea15893b1d742a3d504f2fc0d01f",
+      "dataset": "seqFISH+",
+      "dataset_id": "seqFISH_plus_cortex_svz_zeisel_sccortex_ref_shared10000",
+      "fold": 0,
+      "per_gene_metrics_sha256": "194fe036b22385fd8e53a262f7a2a47ad30141b88288ee9728f73e0430a2fda2",
+      "prediction_sha256": "6eac9f30366677626993c14d4708fd5e7252fef34342b9716c8fea2fb752a678",
+      "prediction_shape": [
+        913,
+        2000
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "392e4ef99170b261d7b5625bee79043824bb7a10a6aec687ad551c5f36c0816a",
+      "test_gene_idx_sha256": "cf6bd1a1acb7919a6190b78ae5c815eabfa9cf1b7b9d2a02787f7b294871ea68"
+    },
+    {
+      "audit_sha256": "92c2b5c6238a959640d4db3feb8dbfd57b4a4304d53b013214a5c90da27efb3b",
+      "axis_sha256": "ab1dd4e2a63c568502c3678d7ab5462b9a006451194b084ee024868250e82d78",
+      "dataset": "seqFISH+",
+      "dataset_id": "seqFISH_plus_cortex_svz_zeisel_sccortex_ref_shared10000",
+      "fold": 1,
+      "per_gene_metrics_sha256": "202fe8921aa3e837f4edf8769e8020f3206f1fe718fffc52b577e40c064fe20d",
+      "prediction_sha256": "60a5d6de3a39890de1ef97b1e317cd38c91483cb2d60c2f317e988b6a4493edd",
+      "prediction_shape": [
+        913,
+        2000
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "a6a530af812d85da8958ccf497eff0a9e323c4aa535d6431224e5e6e33185ecd",
+      "test_gene_idx_sha256": "3ec7503a69d2e45645bb6469ca90f1161e099f34c05baba82b0ba91f19a27d17"
+    },
+    {
+      "audit_sha256": "a703cf68e16983d5ffaf4f40782d97e593e60c44bb05a43fb6015c7b9212a0da",
+      "axis_sha256": "2513704bf0e63a4c7e0a5dad365e0a5d91df32f3a1ba3c83624642eb91835bfa",
+      "dataset": "seqFISH+",
+      "dataset_id": "seqFISH_plus_cortex_svz_zeisel_sccortex_ref_shared10000",
+      "fold": 2,
+      "per_gene_metrics_sha256": "9039e1bca84226b50be105e00993f936c57dc665c9da717d33526583ba60dfa4",
+      "prediction_sha256": "f4ed3a5c8083a675781329b68bcaabed13e92e0c8383f3a018f3c402b7256d5c",
+      "prediction_shape": [
+        913,
+        2000
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "0ec80b34c787052bbf30c88baa86e87b7461ecdda311c47b876df0754d279ec3",
+      "test_gene_idx_sha256": "693225a908b24c2dff93ab3ab3126d39c02b5a5a090bfe23c8570f0b69e23a6a"
+    },
+    {
+      "audit_sha256": "535d8cbd258a9788e11306f6a44ed998bdbdd5960120b0612b16bc85845f7417",
+      "axis_sha256": "3885f392ce6520658b66c9fe8f8cf3738f773e5fb2f76f19f6dc4337faa5b01e",
+      "dataset": "seqFISH+",
+      "dataset_id": "seqFISH_plus_cortex_svz_zeisel_sccortex_ref_shared10000",
+      "fold": 3,
+      "per_gene_metrics_sha256": "c1979438852614aaf1a5816cc7422bd9a397abbe787c84ae710d0e83b5c573af",
+      "prediction_sha256": "5bcfaa1d21fbc135417b2a40801c42d2afeef6d69c860198ac4750762102b268",
+      "prediction_shape": [
+        913,
+        2000
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "7bde98b8566c9cac2cff8b9142195847be0affde948945fc2957f3841b00f60b",
+      "test_gene_idx_sha256": "7715e76c43886d8c3dd290f2cadf4e70bcade6b4cf1b19ce51e28ebd25582815"
+    },
+    {
+      "audit_sha256": "c2217ea27781ba85c7e95020340e50cada4112aa8976c4a8a19b6d122e4e5f7a",
+      "axis_sha256": "68ede54287aafe9f7902e02297768e769fbf093c607f49bf14dbd6368bb7f1e5",
+      "dataset": "seqFISH+",
+      "dataset_id": "seqFISH_plus_cortex_svz_zeisel_sccortex_ref_shared10000",
+      "fold": 4,
+      "per_gene_metrics_sha256": "3ff950464a987b1e1d1a77ac12b389830357cf25b64ff5ef4c5ea313720ca805",
+      "prediction_sha256": "3f160e7094115dbb974366c9b9f2a795a7b9bf3f232edc0e924fe97bbae2674a",
+      "prediction_shape": [
+        913,
+        2000
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "233497b0a023d10f162ff903fb740b52b24fe3fb212e755aefb97cb8e650e68f",
+      "test_gene_idx_sha256": "048f17e5062ee5744df23f95e96ab0a51c23dab2d66717c2d8151a89caff2f31"
+    },
+    {
+      "audit_sha256": "d5283ac08b9357e78df86deb99b454a7d9c5648a95c011cc0ffcc502e8371f16",
+      "axis_sha256": "faac4a1ac2e9f3b724f08713fdb8260470182a98244c5268b539a1e455f78719",
+      "dataset": "MHPR",
+      "dataset_id": "MHPR_current_panel",
+      "fold": 0,
+      "per_gene_metrics_sha256": "5c973a25185b955791c803e755fcc3f6b4b27128e7020e91121f232b4da5ec51",
+      "prediction_sha256": "277a9a707b111317f312f7dd7c865ff9327c710cec6f91aae504a417e36885f3",
+      "prediction_shape": [
+        4975,
+        31
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "aeac130625e5cdc18d62936f751e1244db68bef961043ffea1509f61cb690548",
+      "test_gene_idx_sha256": "076b8d4c2b2b8dd0ee9cb174e65c7b9d86e1e7bd34f1f79f4c231663ac437b07"
+    },
+    {
+      "audit_sha256": "cd086f10ee7f5d68ba7082d6dffcef744a46cf79ac81bc29733e76e34c3f584d",
+      "axis_sha256": "4a0d23938481fa33300546a92d6d881a752ab29ea26e4144f7f52e4235df05dd",
+      "dataset": "MHPR",
+      "dataset_id": "MHPR_current_panel",
+      "fold": 1,
+      "per_gene_metrics_sha256": "ff61859cfcc93693b77ff7ec2f835f784e89e597b6630db8cc6187a4e27931bb",
+      "prediction_sha256": "9ea8db4ede2fecf0fc845a85e7b23675896d21f6cb62e1ed80dcab5eacda73fd",
+      "prediction_shape": [
+        4975,
+        31
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "ecf3cd5222f2409e15d883988a1577771abcbf4b0ae5691739b4bc6e735656e1",
+      "test_gene_idx_sha256": "3104c85f91360ef0ffbde6e13db54fb88ccd8e6ce5b3b56f505f0dde0c5287d7"
+    },
+    {
+      "audit_sha256": "3b6db8a2fa27d726df49d39581980b30fa4f23596aacdf9bf32166186aef5df5",
+      "axis_sha256": "a1cf526ee1297ba50e88f908e79146f5e86c8ea5cc1747adfe0436e6500325fc",
+      "dataset": "MHPR",
+      "dataset_id": "MHPR_current_panel",
+      "fold": 2,
+      "per_gene_metrics_sha256": "7aef90d8ab3812ae893295bd0ccc30800e1fc53159716869a2dbb0dc6b706a62",
+      "prediction_sha256": "c4293c41769fabfb65b8dab5d38828d116cf52d50436130bc2203fc08068b97c",
+      "prediction_shape": [
+        4975,
+        31
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "b4d5f616541e86124f82a4f3b6be257e3026c71b4f098c64c27447196c85e90b",
+      "test_gene_idx_sha256": "96ecd5a036306cd17b12d2fb5ad26d6f1363400a62adcc0d9dad63bc58e91249"
+    },
+    {
+      "audit_sha256": "461ec9410bc298c469008e47154702d6c9cdd27c823a68f42703aaf9753c5dbd",
+      "axis_sha256": "b3df779883919b16eac841638fa0b20aa507d9ea88dbd731a01e3b99a1551ba3",
+      "dataset": "MHPR",
+      "dataset_id": "MHPR_current_panel",
+      "fold": 3,
+      "per_gene_metrics_sha256": "410a1085c1be52b3a52c7fb5b40ff36990516aa88805565200bd527c4923f6a3",
+      "prediction_sha256": "d9bac21e5231dac85fadea24409378dcf1d9735151323030b9d425bcdb7c612a",
+      "prediction_shape": [
+        4975,
+        31
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "b2a63a24ac6e916a9950f65200a42341b07cb87d5f6106cd395316f245c59c78",
+      "test_gene_idx_sha256": "d153ae02618200b9e3163474ffefaecd25ddd21c7f666bb3829e5be7bc946cd1"
+    },
+    {
+      "audit_sha256": "524cac5fac9106c7ce13d45a10edc2ab5a7d646ea577caa7eed741f29523cf13",
+      "axis_sha256": "09658afbe3c218598fbbf0b0d360e1f31abe901500caf0552c0c9596ba513ee0",
+      "dataset": "MHPR",
+      "dataset_id": "MHPR_current_panel",
+      "fold": 4,
+      "per_gene_metrics_sha256": "54fdddd313415c950f9c63c272a2dec0b4859753f0061329763b7f13c3209136",
+      "prediction_sha256": "6f77343c793dcb9b56c5c88acfad865a81de6b82993afc519bf7700381fd932b",
+      "prediction_shape": [
+        4975,
+        30
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "9d7055b5e98b86ed5a64b27571caabe530bc4d58f0b8fcf0bffee09414f61210",
+      "test_gene_idx_sha256": "9e438ecdf681e189b5f31fe2ec6a640da7e02bb998750c56abbdb5a4670fc57c"
+    },
+    {
+      "audit_sha256": "b7d7a1988898c03dda109e3d1a454fe9a24ac1a3974715ee54d44dadf16a9ffc",
+      "axis_sha256": "da0de657da7b6254bd6a09e36034f7b85d7448cbd16cb81757c1bd7a34a78f5d",
+      "dataset": "MVC",
+      "dataset_id": "MVC_shared981",
+      "fold": 0,
+      "per_gene_metrics_sha256": "94b7484c04708762c7af5d8ef6b632f6ae3164a5cc7b3c83d919dff651f43329",
+      "prediction_sha256": "d0eb7453357d392946e15ad5be6b1916b865942638c2eb7e03cb646a457ad524",
+      "prediction_shape": [
+        1549,
+        197
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "000ff9bfd56f55a668bc8d84cb1497644c3abed3819a8d871687ebc6efe694b4",
+      "test_gene_idx_sha256": "a6aff4d3acde056799cda9303247898b3a29f76d32e9043d86c4a3b75c18aee6"
+    },
+    {
+      "audit_sha256": "da2279623751ccad2b2beb6095b0c8c485d69a1df445264df42ebfddb7840900",
+      "axis_sha256": "7a6939112a54853b7ee40e51902a2179724f628a6310d13654e3b627c58bb56f",
+      "dataset": "MVC",
+      "dataset_id": "MVC_shared981",
+      "fold": 1,
+      "per_gene_metrics_sha256": "467463a4af9efaffc45e250b2cb6effde2d8813633678ea12abf7a495370a682",
+      "prediction_sha256": "43b3bb72090ac12981b02f154b5fa988a3681cb21d24783791fd78b6da0cc833",
+      "prediction_shape": [
+        1549,
+        196
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "f75411be9274400c8ebf27de0fedfb72b3c47b74acc0f4450cee5a801c6cb652",
+      "test_gene_idx_sha256": "9bd9e70e2396d9b1fb0ced994ed7c8484f7cd1a21d1cd50ab730a96b0de863f5"
+    },
+    {
+      "audit_sha256": "c708791f591468550f398f5731d11c47f900434180d2d663799d397a0ed7e869",
+      "axis_sha256": "f593686e82223cf52c689b4794a8c7de8daebdd57c499b98c43ec46f7b7e4607",
+      "dataset": "MVC",
+      "dataset_id": "MVC_shared981",
+      "fold": 2,
+      "per_gene_metrics_sha256": "40faf9e1f275d9d2a28ef0f77547bb1c061ca2c41ce30205b2a1d5faa82839c9",
+      "prediction_sha256": "41047700b8f74e3edf79867ebf9ebe506ca7c35f7d9fc2831f6dc00976c79eba",
+      "prediction_shape": [
+        1549,
+        196
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "16d1eba4e8e6f97ed4e9bc997c598061abeb8b954f5a263acdfcc20affc20168",
+      "test_gene_idx_sha256": "b9812c38f6ed28012fe3a6b4d202204567ef9cf21e951c4405ca1fb032d22b72"
+    },
+    {
+      "audit_sha256": "d1a7d894494f2f496c555124c765ffbd61514839e1ca3fe37c460c6fdcff81e2",
+      "axis_sha256": "cb3b4e351a371861b2e8018ab63f15abb2824c46e58b0d4e7d01e1d8ad387567",
+      "dataset": "MVC",
+      "dataset_id": "MVC_shared981",
+      "fold": 3,
+      "per_gene_metrics_sha256": "2b3972c5bd64e0307214ac25df9d1ba4ab18b46aeaa646db281029818908ea61",
+      "prediction_sha256": "150e17f3b002654b5d7175f08e8a4a4171cfaaebb6ddb00dba5db871e8b7a81d",
+      "prediction_shape": [
+        1549,
+        196
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "00a016c315a8a312afdcbdc939b64007c14764b99ffe3e2450261a47bc194160",
+      "test_gene_idx_sha256": "a0e7af12011398296ea810ea620658c972cbee04a27aa6114abf7da29757557d"
+    },
+    {
+      "audit_sha256": "38f244410986e14e0a5da0bf95a0b112d0d3359b1f8f1782f3ea76bde24d3afc",
+      "axis_sha256": "0c121b93ba34317fbf1ad0725bf266c73807f76032db54207c8c45114cb153ec",
+      "dataset": "MVC",
+      "dataset_id": "MVC_shared981",
+      "fold": 4,
+      "per_gene_metrics_sha256": "f8522c5485c2134666639a84500d8c6945486a2abde4207b4e44a870766a2520",
+      "prediction_sha256": "0274980b138870a1a43dd2be55ec2f1eda6e1565d7f766e0997b8a13f70920bf",
+      "prediction_shape": [
+        1549,
+        196
+      ],
+      "role": "cross_platform",
+      "summary_metrics_sha256": "d0eea35fd7bb2b81d5c1a260ccc8175ea46ed3ab66ff7c092f9ee6a98a510699",
+      "test_gene_idx_sha256": "3918b28130eb130ae3e00c40f72df547fe9a7b846acd209d080d1ac92490ac66"
+    }
+  ],
+  "method": "stAI",
+  "official_stai_commit": "3376cc16cc6d8461edafc0aeb4519b92d18474b7",
+  "schema_version": 1,
+  "status": "complete"
+}

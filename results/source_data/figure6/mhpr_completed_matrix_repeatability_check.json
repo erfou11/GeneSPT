@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "comparison": "exact numeric, nonnumeric, and serialized CSV equality",
+  "reference_output": "archive/_qa/stai_full_sync_20260723/figure6d_staging",
+  "current_output": "archive/_qa/stai_full_sync_20260723/figure6d_repeat",
+  "files": {
+    "protocol_a_figure6d_mhpr_all154_fold_metrics.csv": {
+      "columns_equal": true,
+      "shape_equal": true,
+      "numeric_values_exactly_equal": true,
+      "nonnumeric_values_equal": true,
+      "file_sha256_equal": true,
+      "reference_sha256": "bcfd8b9b622cec90983f70f66a091e50e1a5d25fe32aad6f338313ae6406f2be",
+      "current_sha256": "bcfd8b9b622cec90983f70f66a091e50e1a5d25fe32aad6f338313ae6406f2be"
+    },
+    "protocol_a_figure6d_mhpr_all154_summary.csv": {
+      "columns_equal": true,
+      "shape_equal": true,
+      "numeric_values_exactly_equal": true,
+      "nonnumeric_values_equal": true,
+      "file_sha256_equal": true,
+      "reference_sha256": "fc0198a7ed610ea8f764818e4b156af096d0ac81cf0f5635578b8cef3958b8f2",
+      "current_sha256": "fc0198a7ed610ea8f764818e4b156af096d0ac81cf0f5635578b8cef3958b8f2"
+    },
+    "protocol_a_figure6d_mhpr_all154_test_gene_participation.csv": {
+      "columns_equal": true,
+      "shape_equal": true,
+      "numeric_values_exactly_equal": true,
+      "nonnumeric_values_equal": true,
+      "file_sha256_equal": true,
+      "reference_sha256": "91c57de48dd533e2c736c0a070533f981cefe6168ef893855f23aef74a90b48d",
+      "current_sha256": "91c57de48dd533e2c736c0a070533f981cefe6168ef893855f23aef74a90b48d"
+    }
+  }
+}

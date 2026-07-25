@@ -1,24 +1,31 @@
 # Reproduction status
 
-## Available
+## Available without data
 
-- Cleaned active GeneSPT and PSP source files.
-- Dataset configuration templates.
-- Lightweight metric/I/O package and synthetic tests.
-- Manuscript figure-generation scripts retained by the publication audit.
-- Zenodo DOI and output-schema documentation.
+- import and environment smoke tests;
+- synthetic centralized-metric tests;
+- exact GeneSPT formal source, six baseline adapters and runtime patches or wrappers;
+- machine-readable dataset, method and environment configuration;
+- plotting and downstream-analysis source.
 
-## External by design
+## Available with the data archive
 
-- Raw and processed biological matrices.
-- Frozen binary split arrays.
-- Saved prediction matrices and checkpoints.
-- Complete third-party baseline repositories.
+- SHA256 verification of 210 benchmark predictions and 30 fold-specific truth
+  matrices;
+- SHA256 verification of 90 Figure 3 mechanism predictions;
+- one-command recomputation of benchmark and mechanism SPCC, standardized
+  RMSE, JSD and SSIM;
+- all 180 external-baseline task commands and audit fields;
+- all frozen train/validation/test split hashes;
+- all 30 readout locks and 60 candidate tables for GeneSPT/GeneSPT-GC;
+- source data for Supplementary Tables S1-S3 and Figures 2-6.
 
-## Current guarded experiment
+## Not claimed
 
-`main/run_predictable_spatial_program_folds012.py` defaults to folds 0-4 and
-the canonical `pca32_nmf32` PSP descriptor. It requires an explicitly supplied
-canonical GC cache for reuse. Training a replacement base or selecting a
-non-canonical descriptor requires an explicit override and must not be confused
-with manuscript evidence.
+The lightweight reviewer command does not retrain GeneSPT or third-party
+baselines. Full retraining requires the recorded upstream repositories,
+processed inputs, CUDA environment and compute budget. Raw public-source
+downloads and large checkpoints are not stored in GitHub.
+
+See `docs/REPRODUCE_PROTOCOL_A.md` for executable commands and
+`docs/BASELINE_ADAPTATION.md` for baseline fairness details.

@@ -1,0 +1,22 @@
+{
+  "baseline_task_count": 150,
+  "benchmark_methods": [
+    "GeneSPT",
+    "Tangram",
+    "TransImp",
+    "SpaIM",
+    "SpaGE",
+    "stPlus"
+  ],
+  "datasets": 6,
+  "folds_per_dataset": 5,
+  "formal_config_sha256": "33553a6394a306c3f5a03dc99a3b6cdf27e9a7bd56202fe730d3c466d2f9b3d5",
+  "formal_metrics_sha256": "bc2c0e7f6a71174f38b8347d2fe205c27fb42c79eefb1cd83edfe74737e364e6",
+  "mechanism_prediction_matrix_count": 90,
+  "prediction_matrix_count": 180,
+  "protocol": "A",
+  "readout_selection_row_count": 60,
+  "schema_version": 1,
+  "status": "complete",
+  "truth_matrix_count": 30
+}

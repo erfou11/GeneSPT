@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    "benchmark_table": {
+      "bytes": 10530,
+      "file": "supplementary_table_s2_formal_benchmark.csv",
+      "rows": 42,
+      "sha256": "f5dd57797ba87bf59db3e7eafd19b711d622369a477031552afa30792f4a2be1"
+    },
+    "readme": {
+      "bytes": 945,
+      "file": "README.md",
+      "sha256": "d035ad5c8fcd650b3f74334d7afce6a9ce6a6165497f015012b4cad9af8f0e20"
+    }
+  },
+  "description": "Public Supplementary Table S2 artifacts for the six-dataset, seven-method formal benchmark.",
+  "schema_version": 2,
+  "status": "complete"
+}

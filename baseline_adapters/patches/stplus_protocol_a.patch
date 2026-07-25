@@ -1,0 +1,65 @@
+--- a/model.py
++++ b/model.py
+@@ -120,8 +120,8 @@
+     optimizer = torch.optim.Adam(net.parameters(), lr = learning_rate, weight_decay=weight_decay)
+ 
+     train_set = TensorsDataset(train_dat,train_lab)
+-    train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=4)
+-    val_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=False, num_workers=4)
++    train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=4, generator=torch.Generator(device = 'cuda'))
++    val_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=False, num_workers=4,generator=torch.Generator(device = 'cuda'))
+     if data_quality is None:
+         data_quality = 1 - np.sum(np.sum(scrna_df==0)) / (scrna_df.shape[0]*scrna_df.shape[1])
+         
+--- a/utils.py
++++ b/utils.py
+@@ -36,8 +36,8 @@
+ 
+     pred_res = pd.DataFrame(np.zeros((spatial_transformed.shape[0],genes_to_predict.shape[0])), columns=genes_to_predict)
+ 
+-    distances, indices = nbrs.kneighbors(spatial_transformed)
+-    for j in range(0,spatial_transformed.shape[0]):
++    distances, indices = nbrs.kneighbors(spatial_transformed) # 50个与sp cell最近的sc cell
++    for j in range(0,spatial_transformed.shape[0]): # 计算权重然后用 近邻估计结果作为预测
+         weights = 1-(distances[j,:][distances[j,:]<1])/(np.sum(distances[j,:][distances[j,:]<1]))
+         weights = weights/(len(weights)-1)
+         pred_res.iloc[j,:] = np.dot(weights,scRNA_data[genes_to_predict].iloc[indices[j,:][distances[j,:] < 1]])
+@@ -45,6 +45,38 @@
+     net.train()
+     return pred_res
+ 
++def find_neighbors(net, val_loader, train_lab, scRNA_data, genes_to_predict, n_neighbors=50):
++    """
++    net: trained model
++    val_loader: DataLoader of train_set without shuffle
++    train_lab: labels of train_set, 1 for spatial data while 0 for scRNA-seq data
++    scRNA_data: measured scRNA-seq data
++    genes_to_predict: genes to predict (1D numpy array)
++    """
++    net.eval()
++    fm_mu = None
++    for batch_idx, (x, _) in enumerate(val_loader):
++        x = x.cuda()
++        decode_output, mu = net(x)
++        if fm_mu is None:
++            fm_mu = mu.cpu().detach().numpy()
++        else:
++            fm_mu = np.concatenate((fm_mu,mu.cpu().detach().numpy()),axis=0)
++    
++    scRNA_transformed = fm_mu[train_lab!=1,:]
++    spatial_transformed = fm_mu[train_lab==1,:]
++    nbrs = NearestNeighbors(n_neighbors=n_neighbors, algorithm='auto', metric = 'cosine').fit(scRNA_transformed)
++
++    pred_res = pd.DataFrame(np.zeros((spatial_transformed.shape[0],genes_to_predict.shape[0])), columns=genes_to_predict)
++
++    distances, indices = nbrs.kneighbors(spatial_transformed) # 50个与sp cell最近的sc cell
++    for j in range(0,spatial_transformed.shape[0]): # 计算权重然后用 近邻估计结果作为预测
++        weights = 1-(distances[j,:][distances[j,:]<1])/(np.sum(distances[j,:][distances[j,:]<1]))
++        weights = weights/(len(weights)-1)
++        pred_res.iloc[j,:] = np.dot(weights,scRNA_data[genes_to_predict].iloc[indices[j,:][distances[j,:] < 1]])
++    
++    net.train()
++    return pred_res, indices
+ 
+ 
+ def select_top_variable_genes(data_mtx, top_k):

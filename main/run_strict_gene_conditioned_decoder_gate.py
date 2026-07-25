@@ -608,7 +608,7 @@ def main() -> None:
     baseline_plan = """# Strict Whole-Gene Baseline Alignment Plan
 
 ## Frozen Protocol
-Use `/workspace/GeneSPT/results/imformation/strict_whole_gene_masks/` for all methods.
+Use the frozen dataset-specific gene-index masks for all methods.
 
 ## Rules
 - Final inference input genes: `train_gene_idx + val_gene_idx`.
@@ -621,13 +621,10 @@ Use `/workspace/GeneSPT/results/imformation/strict_whole_gene_masks/` for all me
 - Tangram
 - SpaGE
 - stPlus
-- TransPA
-- stDiff
-- stImpute if feasible
-- TISSUE if feasible
+- TransImp
 
 ## Reporting
-Report SPCC, SSIM, RMSE, JS, per-gene SPCC, high-spatial subgroup, and low-expression subgroup. Record whether each baseline uses scRNA/reference and whether held-out ST test-gene values are excluded from every fitting or selection path.
+Report SPCC, standardized RMSE, JSD, SSIM, per-gene SPCC, high-spatial subgroup, and low-expression subgroup. Record whether each baseline uses scRNA/reference and whether held-out ST test-gene values are excluded from every fitting or selection path.
 """
     (args.out_dir / "strict_whole_gene_baseline_alignment_plan.md").write_text(baseline_plan, encoding="utf-8")
 

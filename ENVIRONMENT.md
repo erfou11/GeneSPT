@@ -1,50 +1,48 @@
 # GeneSPT Environment
 
-This workspace should be run from a CUDA Docker container, not from Windows
-Python and not from the bare WSL Python. The stable project path inside the
-container is:
+The public Docker environment is defined by the repository-root `Dockerfile`
+and `compose.yaml`. The stable project path inside the container is:
 
 ```text
 /workspace/GeneSPT
 ```
 
-## Recommended Entry Point
+## Repository-root entry point
 
-From `D:\TESTWORK001` on Windows:
+Run these commands from the cloned public repository root on Windows, Linux,
+or macOS:
 
-```powershell
+```bash
 docker compose build genespt
-docker compose up -d genespt
-docker compose exec genespt bash -lc "cd /workspace/GeneSPT && python scripts/env_smoke_test.py"
+docker compose run --rm genespt python scripts/env_smoke_test.py
 ```
 
-For VS Code, use **Dev Containers: Reopen in Container**. The checked-in
-`.devcontainer/devcontainer.json` opens the project at `/workspace/GeneSPT`
-and uses `/opt/conda/bin/python`.
+Compose bind-mounts the repository root at `/workspace/GeneSPT`, so the checked
+out scripts are available even though the image layer contains dependencies
+only. The repository-root Docker and Compose files are the complete public
+container contract.
 
 ## Current CUDA Baseline
 
 - Docker image: `pytorch/pytorch:2.1.2-cuda11.8-cudnn8-devel`
-- Development image: `genespt/cuda-dev:pytorch2.1.2-cu118`
+- Compose image: `genespt/public:pytorch2.1.2-cu118`
 - Container Python: `3.10.13`
 - PyTorch: `2.1.2`
 - CUDA runtime in container: `11.8`
-- Tested GPU visibility: one NVIDIA GPU is visible through Docker
+- The no-data smoke command is valid without a GPU; CUDA visibility is reported
+  rather than required
 
 The host driver can expose a newer CUDA version through `nvidia-smi`; that is
 normal as long as the container CUDA runtime and PyTorch build stay compatible.
 
-## Why This Setup
+## Runtime contract
 
-The previous VS Code workspace only selected a conda manager. That leaves three
-possible runtimes competing with each other:
-
-- Windows Python
-- bare WSL Python at `/mnt/d/TESTWORK001`
-- Docker Python at `/workspace/GeneSPT`
-
-For this repository, Docker Python is the source of truth because it already has
-the working CUDA/PyTorch stack and the spatial transcriptomics dependencies.
+Docker Python is the documented source of truth for the pinned manuscript
+environment. The default Compose service deliberately does not reserve a GPU,
+which keeps the no-data smoke check runnable on CPU-only reviewer machines.
+Matrix-level archive verification is also CPU-only but requires the extracted
+data archive. GPU-backed training requires a host with NVIDIA Container Toolkit and
+an explicit local GPU reservation; it is outside the no-data smoke contract.
 
 ## Dependency Notes
 
@@ -56,10 +54,12 @@ image is changed, rerun:
 python scripts/env_smoke_test.py
 ```
 
-## Codex / Agent Rules
+## Paths inside the container
 
-- Work from `/workspace/GeneSPT` inside the container for experiments.
-- Keep `PYTHONPATH=/workspace/GeneSPT/main:/workspace/GeneSPT/scripts`.
-- Do not run training from the Windows Python interpreter.
-- Do not rewrite manuscript or experiment outputs as part of environment work.
-- Keep long-running experiments behind an explicit queue or user request.
+- Repository root: `/workspace/GeneSPT`
+- Public package: `/workspace/GeneSPT/src`
+- Experiment modules: `/workspace/GeneSPT/main`
+- Reproduction scripts: `/workspace/GeneSPT/scripts`
+
+Compose sets all three source directories on `PYTHONPATH`. Generated outputs
+belong under the repository-relative `results/` or `figures/` mounts.

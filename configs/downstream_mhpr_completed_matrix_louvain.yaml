@@ -1,0 +1,65 @@
+protocol_id: mhpr_completed_matrix_louvain_hvg100_pca30_k15_v1
+status: fixed_descriptive_downstream_analysis
+dataset:
+  id: MHPR_current_panel
+  label: MHPR/MERFISH
+  truth_path: ground_truth/MHPR_current_panel/st_log1p_cpm.npy
+  gene_names_path: ground_truth/MHPR_current_panel/gene_names.txt
+  label_path: label_provenance/matched_labels/mhpr_current_panel_matched_original_merfish_labels.csv
+  label_column: Cell_class
+  matrix_row_column: matrix_row
+  split_root: frozen_splits/cross_platform/MHPR_current_panel/gene_index_masks
+  prediction_root: prediction_matrices/MHPR_current_panel
+
+methods:
+  - GeneSPT
+  - SpaIM
+  - Tangram
+  - TransImp
+  - SpaGE
+  - stPlus
+
+folds: [0, 1, 2, 3, 4]
+
+matrix_mode:
+  name: completed_fold_matrix
+  measured_columns: outer train and validation genes
+  predicted_columns: outer test genes
+  description: >-
+    For each frozen gene fold, retain measured ST expression for train and
+    validation genes and insert method-specific predictions only for held-out
+    test genes.
+
+preprocessing:
+  input_scale: archived normalized log1p CPM-compatible expression
+  drop_nonfinite_features: true
+  drop_zero_variance_features: true
+  hvg_selection: top variance features within each completed matrix
+  hvg_n: 100
+  standardize_features: true
+
+pca:
+  n_components: 30
+  svd_solver: randomized
+  random_state: 0
+
+neighbors:
+  n_neighbors: 15
+  metric: euclidean
+  edge_weight: exp_negative_squared_distance_over_median_distance
+
+clustering:
+  algorithm: igraph_multilevel_louvain
+  weighted: true
+  method_specific_parameters: false
+  random_state_note: igraph multilevel is deterministic for the fixed graph in this environment
+
+metrics: [ARI, AMI, NMI, homogeneity]
+aggregation: arithmetic mean and sample standard deviation across five frozen gene folds
+rank_scope: six imputation methods
+evaluation_role: descriptive downstream analysis
+selection_history: >-
+  This common configuration was fixed after exploratory protocol comparison.
+  It is applied unchanged to every method and fold and is not presented as an
+  independently preregistered confirmatory analysis.
+

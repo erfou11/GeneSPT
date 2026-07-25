@@ -1,0 +1,17 @@
+services:
+  genespt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: genespt/public:pytorch2.1.2-cu118
+    working_dir: /workspace/GeneSPT
+    init: true
+    shm_size: "16gb"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /workspace/GeneSPT/src:/workspace/GeneSPT/main:/workspace/GeneSPT/scripts
+      MPLBACKEND: Agg
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace/GeneSPT
