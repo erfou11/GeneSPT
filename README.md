@@ -15,18 +15,7 @@ The model combines:
 4. a validation-selected model readout locked before final-test evaluation; and
 5. a centralized evaluator for SPCC, RMSE, JS/JSD, and SSIM.
 
-## Repository Scope
 
-This checkout is anchored to the completed formal Protocol A workbench. Active
-method and figure code is under `main/` and `scripts/`.
-Superseded model routes, mistaken configurations, historical results, raw
-data, prediction matrices, and checkpoints are intentionally not tracked.
-
-Large reviewer-facing data and result artifacts are prepared as a separate
-archive. A replacement Zenodo DOI will be added after the new record is
-published; this repository does not currently claim an active archive DOI.
-
-GitHub does not contain raw or processed expression matrices.
 
 ## Layout
 
