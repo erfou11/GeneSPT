@@ -19,17 +19,6 @@ Model selection uses validation genes and is fixed before final-test
 evaluation. SPCC, RMSE, JS/JSD, and SSIM are computed by one centralized
 evaluator.
 
-## Repository Contents
-
-This repository contains the GeneSPT implementation, benchmark workflows,
-baseline adapters, frozen configuration manifests, figure scripts, and
-lightweight source tables. Large processed inputs, frozen splits, prediction
-matrices, ground-truth matrices, and complete figure source data are available
-from Zenodo:
-
-- all versions: [10.5281/zenodo.21550226](https://doi.org/10.5281/zenodo.21550226)
-- release v1.0.0: [10.5281/zenodo.21550227](https://doi.org/10.5281/zenodo.21550227)
-
 ## Layout
 
 ```text
